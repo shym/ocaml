@@ -291,8 +291,6 @@ AS_CASE([$host],
 # Systems that are known not to work, even in bytecode only.
 
 AS_CASE([$host],
-  [*-pc-windows],
-    [AC_MSG_ERROR([the MSVC compiler is not supported currently], 69)],
   [i386-*-solaris*],
     [AC_MSG_ERROR([Building for 32 bits target is not supported. \
 If your host is 64 bits, you can try with './configure CC="gcc -m64"' \
@@ -824,9 +822,11 @@ AS_CASE([$host],
       [common_cflags="-nologo -O2 -Gy- -MD $cc_warnings"
       common_cppflags="-D_CRT_SECURE_NO_DEPRECATE"
       internal_cppflags='-DUNICODE -D_UNICODE'
+      internal_cflags='-experimental:c11atomics -std:c11'
+      CFLAGS="$CFLAGS -experimental:c11atomics -std:c11"
       OCAML_CL_HAS_VOLATILE_METADATA
       AS_IF([test "x$cl_has_volatile_metadata" = "xtrue"],
-            [internal_cflags='-d2VolatileMetadata-'])
+            [internal_cflags="$internal_cflags -d2VolatileMetadata-"])
       internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE="
       internal_cppflags="${internal_cppflags}\$(WINDOWS_UNICODE)"],
     [xlc-*],
@@ -1136,7 +1136,7 @@ AC_CHECK_DECL([__STDC_NO_ATOMICS__],
 # macOS and MinGW-w64 have problems with thread local storage accessed from DLLs
 
 AS_CASE([$host],
-  [*-apple-darwin*|*-mingw32*], [],
+  [*-apple-darwin*|*-mingw32*|*-pc-windows], [],
   [AC_DEFINE([HAS_FULL_THREAD_VARIABLES])]
 )
 
