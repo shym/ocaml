@@ -15,7 +15,10 @@ build: [
   [
     "./configure"
     "--prefix=%{prefix}%"
-    "--docdir=%{doc}%/ocaml"
+    "--build=i686-pc-cygwin"
+    "--host=x86_64-w64-mingw32"
+    "--disable-dependency-generation"
+    "--disable-stdlib-manpages"
     "--with-afl" {ocaml-option-afl:installed}
     "--disable-native-compiler" {ocaml-option-bytecode-only:installed}
     "--disable-flat-float-array" {ocaml-option-no-flat-float-array:installed}
