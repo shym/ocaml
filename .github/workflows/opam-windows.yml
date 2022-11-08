@@ -17,4 +17,8 @@ jobs:
 
       - name: Build and install the OCaml compiler in a fresh opam switch
         run: |
-          opam repository -v
+          opam switch create ci --empty
+          opam repository add upstream git+https://github.com/ocaml/opam-repository.git --on-switches=ci --rank=-1
+          opam install --switch=ci .
+          opam config list --switch=ci
+          opam list --switch=ci
