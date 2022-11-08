@@ -1,0 +1,20 @@
+name: Build in GitHub Windows CI environment
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Install OCaml compiler
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: 4.14
+
+      - name: Build and install the OCaml compiler in a fresh opam switch
+        run: |
+          opam switch create ci --empty
+          opam install --switch=ci .
+          opam config list --switch=ci
+          opam list --switch=ci
