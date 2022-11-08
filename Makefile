@@ -781,7 +781,7 @@ runtime/prims.c : runtime/primitives
 	 echo '  0 };'; \
 	 echo 'char * caml_names_of_builtin_cprim[] = {'; \
 	 sed -e 's/.*/  "&",/' $<; \
-	 echo '  0 };') > $@
+	 echo '  0 };') | tr -d '\r' > $@
 
 runtime/caml/opnames.h : runtime/caml/instruct.h
 	tr -d '\r' < $< | \
