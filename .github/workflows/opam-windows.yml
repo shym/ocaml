@@ -14,7 +14,8 @@ jobs:
 
       - name: Build and install the OCaml compiler in a fresh opam switch
         run: |
+          ls -l ocaml-variants.opam
           opam switch create ci --empty
-          opam install --switch=ci .
+          opam install --switch=ci ./ocaml-variants.opam
           opam config list --switch=ci
           opam list --switch=ci
