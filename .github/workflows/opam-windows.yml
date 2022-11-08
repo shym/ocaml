@@ -17,4 +17,4 @@ jobs:
 
       - name: Build and install the OCaml compiler in a fresh opam switch
         run: |
-          opam remote -v
+          opam repository -v
