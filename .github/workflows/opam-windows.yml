@@ -7,6 +7,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Install OCaml compiler
         uses: ocaml/setup-ocaml@v2
         with:
@@ -14,8 +17,7 @@ jobs:
 
       - name: Build and install the OCaml compiler in a fresh opam switch
         run: |
-          ls -l ocaml-variants.opam
           opam switch create ci --empty
-          opam install --switch=ci ./ocaml-variants.opam
+          opam install --switch=ci .
           opam config list --switch=ci
           opam list --switch=ci
