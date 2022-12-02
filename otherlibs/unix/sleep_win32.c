@@ -21,6 +21,7 @@ CAMLprim value caml_unix_sleep(t)
      value t;
 {
   double d = Double_val(t);
+  if (d < 0.0) return Val_unit;
   caml_enter_blocking_section();
   Sleep(d * 1e3);
   caml_leave_blocking_section();
