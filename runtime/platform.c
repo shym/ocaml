@@ -16,7 +16,9 @@
 #define CAML_INTERNALS
 
 #include <string.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <errno.h>
 #include <sys/time.h>
 #include "caml/osdeps.h"
@@ -235,6 +237,20 @@ unsigned caml_plat_spin_wait(unsigned spins,
   if (spins < Slow_sleep_ns && Slow_sleep_ns <= next_spins) {
     caml_gc_log("Slow spin-wait loop in %s at %s:%d", function, file, line);
   }
+
+#ifndef _WIN32
   usleep(spins/1000);
+#else
+  HANDLE timer;
+  LARGE_INTEGER ft;
+
+  /* Slices of 100ns, rather than 1us */
+  ft.QuadPart = -(spins/100);
+  timer = CreateWaitableTimer(NULL, TRUE, NULL);
+  SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+  WaitForSingleObject(timer, INFINITE);
+  CloseHandle(timer);
+#endif
+
   return next_spins;
 }
