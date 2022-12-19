@@ -58,6 +58,10 @@
 #include <stdint.h>
 #endif
 
+#ifdef _WIN32
+#undef HAS_UNISTD
+#endif
+
 /* Disable the mingw-w64 *printf shims */
 #if defined(CAML_INTERNALS) && defined(__MINGW32__)
   /* Headers may have already included <_mingw.h>, so #undef if necessary. */
