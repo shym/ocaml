@@ -235,6 +235,10 @@ unsigned caml_plat_spin_wait(unsigned spins,
   if (spins < Slow_sleep_ns && Slow_sleep_ns <= next_spins) {
     caml_gc_log("Slow spin-wait loop in %s at %s:%d", function, file, line);
   }
+#ifdef _WIN32
+  Sleep(1+spins/1000000);
+#else
   usleep(spins/1000);
+#endif
   return next_spins;
 }
