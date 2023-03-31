@@ -220,8 +220,17 @@ void caml_mem_unmap(void* mem, uintnat size)
 #endif
 }
 
+#ifndef _WIN32
 #define Min_sleep_ns       10000 // 10 us
 #define Slow_sleep_ns    1000000 //  1 ms
+#error "For the time being ensure we are compiling the other branch"
+#else
+// On Windows, Sleep is taking a millisecond interval rather than a
+// microsecond, and we must avoid Sleep(0) which can lead into
+// deadlocks
+#define Min_sleep_ns     1000000 //  1 ms
+#define Slow_sleep_ns   10000000 // 10 ms
+#endif
 #define Max_sleep_ns  1000000000 //  1 s
 
 unsigned caml_plat_spin_wait(unsigned spins,
@@ -235,10 +244,6 @@ unsigned caml_plat_spin_wait(unsigned spins,
   if (spins < Slow_sleep_ns && Slow_sleep_ns <= next_spins) {
     caml_gc_log("Slow spin-wait loop in %s at %s:%d", function, file, line);
   }
-#ifdef _WIN32
-  Sleep(1+spins/1000000);
-#else
   usleep(spins/1000);
-#endif
   return next_spins;
 }
