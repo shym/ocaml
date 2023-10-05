@@ -18623,7 +18623,7 @@ case $host in #(
   *-*-mingw32*) :
     PTHREAD_LIBS="-l:libpthread.a -lgcc_eh" ;; #(
   *-pc-windows) :
-    PTHREAD_LIBS="-l:libpthread.lib" ;; #(
+    PTHREAD_LIBS='' ;; #(
   *) :
 
 
