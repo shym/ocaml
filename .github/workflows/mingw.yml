@@ -1,0 +1,73 @@
+name: Mingw
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on: [push]
+
+jobs:
+  build:
+    permissions: {}
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Save pristine PATH
+        id: pristine
+        run: |
+          echo "pristine_path=${env:Path}" >> "${env:GITHUB_OUTPUT}"
+
+      - name: Fetch OCaml
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Choose a cache key
+        id: key
+        run: |
+          git rev-parse HEAD | Tee-Object -Variable sha
+          echo "cache_key=ocaml-${sha}" | Tee-Object -FilePath "${env:GITHUB_OUTPUT}"
+
+      - name: Restore cache
+        uses: actions/cache/restore@v3
+        id: cache
+        env:
+          PATH: ${{ steps.pristine.outputs.pristine_path }}
+        with:
+          path: |
+            C:\cygwin-packages
+          key: ${{ steps.key.outputs.cache_key }}
+
+      - name: Install Cygwin
+        uses: cygwin/cygwin-install-action@v3
+        with:
+          packages: make,bash,mingw64-i686-gcc-core,mingw64-i686-gcc-g++,mingw64-x86_64-gcc-core,mingw64-x86_64-gcc-g++
+          install-dir: 'D:\cygwin'
+
+      - name: Build OCaml
+        shell: bash -e {0}
+        run: |
+          mkdir /cygdrive/d/ocaml                                                         #
+          ./configure --host=x86_64-w64-mingw32 --with-flexdll --prefix=/cygdrive/d/ocaml #
+          make                                                                            #
+          make install                                                                    #
+
+      - name: Display configuration and set up PATH
+        run: |
+          D:\ocaml\bin\ocamlc -config
+          echo "D:\ocaml\bin" >> ${env:GITHUB_PATH}
+
+      - name: Run the tests
+        run: |
+          make tests
+
+      - name: Save cache
+        uses: actions/cache/save@v3
+        env:
+          PATH: ${{ steps.pristine.outputs.pristine_path }}
+        with:
+          path: |
+            C:\cygwin-packages
+          key: ${{ steps.key.outputs.cache_key }}
+        if: "steps.cache.outputs.cache-hit != 'true'"
