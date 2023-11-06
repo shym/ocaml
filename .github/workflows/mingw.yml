@@ -59,6 +59,7 @@ jobs:
           echo "D:\ocaml\bin" >> ${env:GITHUB_PATH}
 
       - name: Run the tests
+        shell: bash -e {0}
         run: |
           make tests
 
