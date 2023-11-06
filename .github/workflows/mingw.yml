@@ -61,7 +61,7 @@ jobs:
       - name: Run the tests
         shell: bash -e {0}
         run: |
-          make tests
+          make tests #
 
       - name: Save cache
         uses: actions/cache/save@v3
