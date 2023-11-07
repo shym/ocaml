@@ -218,6 +218,11 @@ void caml_mem_unmap(void* mem, uintnat size)
 #endif
 }
 
+#ifdef _WIN32
+/* from win32.c */
+extern void caml_win32_nanosleep(__int64 sec, __int64 nsec);
+#endif
+
 #define Min_sleep_ns       10000 // 10 us
 #define Slow_sleep_ns    1000000 //  1 ms
 #define Max_sleep_ns  1000000000 //  1 s
@@ -234,7 +239,7 @@ unsigned caml_plat_spin_wait(unsigned spins,
     caml_gc_log("Slow spin-wait loop in %s at %s:%d", function, file, line);
   }
 #ifdef _WIN32
-  Sleep(spins/1000000);
+  caml_win32_nanosleep(spins / 1000000000, spins % 1000000000);
 #else
   usleep(spins/1000);
 #endif

@@ -1107,6 +1107,47 @@ CAMLexport clock_t caml_win32_clock(void)
   return (clock_t)((stime.ul + utime.ul) / clocks_per_sec);
 }
 
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+HANDLE caml_win32_create_timer(void)
+{
+  return CreateWaitableTimerEx(NULL, NULL,
+                               CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+                               SYNCHRONIZE | TIMER_QUERY_STATE
+                               | TIMER_MODIFY_STATE);
+}
+
+void caml_win32_destroy_timer(HANDLE timer)
+{
+  if (timer != INVALID_HANDLE_VALUE)
+    CloseHandle(timer);
+}
+
+/* FIXME: error handling? */
+void caml_win32_nanosleep(__int64 sec, __int64 nsec)
+{
+  HANDLE timer = Caml_state->timer;
+  DWORD timeout;
+
+  /* If the high-resolution timer is available, use it. Otherwise,
+   * fall-back to the low-resolution timer, which doesn't need a
+   * handle. */
+  if (timer != INVALID_HANDLE_VALUE) {
+    LARGE_INTEGER dt;
+    /* relative sleep (negative), 100ns units */
+    dt.QuadPart = -(sec * 10000000 + nsec / 100);
+
+    SetWaitableTimer(timer, &dt, 0, NULL, NULL, FALSE);
+    timeout = INFINITE;
+  } else {
+    timeout = sec * 1000 + nsec / 1000000; /* ms units */
+  }
+
+  WaitForSingleObject(timer, timeout);
+}
+
 static double clock_period = 0;
 
 void caml_init_os_params(void)
