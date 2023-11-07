@@ -98,7 +98,8 @@ jobs:
       - name: Other checks
         run: |
           MAKE_ARG=-j OCAMLRUNPARAM=b,v=0 bash -xe tools/ci/actions/runner.sh other-checks
-      - name: Upload documentation artifact
+      - name: Upload test artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           path: testsuite/_ocamltest
@@ -143,7 +144,8 @@ jobs:
           for dir in $PARALLEL_TESTS; do \
            bash -cxe "SHOW_TIMINGS=1 tools/ci/actions/runner.sh test_prefix $dir"; \
           done
-      - name: Upload documentation artifact
+      - name: Upload test artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           path: testsuite/_ocamltest
@@ -171,7 +173,8 @@ jobs:
       - name: Run the testsuite
         run: |
           bash -xe tools/ci/actions/runner.sh test
-      - name: Upload documentation artifact
+      - name: Upload test artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           path: testsuite/_ocamltest
@@ -215,7 +218,8 @@ jobs:
           for dir in $PARALLEL_TESTS; do \
             bash -cxe "SHOW_TIMINGS=1 tools/ci/actions/runner.sh test_prefix $dir"; \
           done
-      - name: Upload documentation artifact
+      - name: Upload test artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           path: testsuite/_ocamltest
