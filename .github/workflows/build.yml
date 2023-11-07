@@ -83,6 +83,8 @@ jobs:
         run: |
           sudo apt-get update -y && sudo apt-get install -y texlive-latex-extra texlive-fonts-recommended hevea sass
       - name: Run the testsuite
+        env:
+          KEEP_TEST_DIR_ON_SUCCESS: yes
         run: |
           MAKE_ARG=-j OCAMLRUNPARAM=b,v=0 bash -xe tools/ci/actions/runner.sh test
       - name: Build API Documentation
@@ -133,6 +135,8 @@ jobs:
           MAKE_ARG=-j bash -xe tools/ci/actions/runner.sh build
       - name: Run the testsuite
         if: ${{ matrix.name != 'linux-O0' }}
+        env:
+          KEEP_TEST_DIR_ON_SUCCESS: yes
         run: |
           bash -c 'SHOW_TIMINGS=1 tools/ci/actions/runner.sh test'
       - name: Run the testsuite (linux-O0)
@@ -140,6 +144,7 @@ jobs:
         env:
           OCAMLRUNPARAM: v=0,V=1
           USE_RUNTIME: d
+          KEEP_TEST_DIR_ON_SUCCESS: yes
         run: |
           for dir in $PARALLEL_TESTS; do \
            bash -cxe "SHOW_TIMINGS=1 tools/ci/actions/runner.sh test_prefix $dir"; \
@@ -173,12 +178,6 @@ jobs:
       - name: Run the testsuite
         run: |
           bash -xe tools/ci/actions/runner.sh test
-      - name: Upload test artifact
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v3
-        with:
-          path: testsuite/_ocamltest
-          name: test-artifacts-i386
 
 # "extra" testsuite runs, reusing the previously built compiler tree.
 # debug: running the full testsuite with the
@@ -207,6 +206,7 @@ jobs:
         env:
           OCAMLRUNPARAM: v=0,V=1
           USE_RUNTIME: d
+          KEEP_TEST_DIR_ON_SUCCESS: yes
         run: |
           bash -cxe "SHOW_TIMINGS=1 tools/ci/actions/runner.sh test"
       - name: Run the testsuite (s=4096, debug runtime)
@@ -214,6 +214,7 @@ jobs:
         env:
           OCAMLRUNPARAM: s=4096,v=0
           USE_RUNTIME: d
+          KEEP_TEST_DIR_ON_SUCCESS: yes
         run: |
           for dir in $PARALLEL_TESTS; do \
             bash -cxe "SHOW_TIMINGS=1 tools/ci/actions/runner.sh test_prefix $dir"; \
