@@ -1036,7 +1036,11 @@ AC_SEARCH_LIBS([cos], [m],
 # Checks for header files
 
 AC_CHECK_HEADER([math.h])
-AC_CHECK_HEADERS([unistd.h],[AC_DEFINE([HAS_UNISTD])])
+# We don't want to use an emulation unistd.h on Windows (as provided by MinGW)
+# so we ensure it is not defined
+AS_CASE([$host],
+  [*-*-mingw32*|*-pc-windows],[],
+  [AC_CHECK_HEADERS([unistd.h],[AC_DEFINE([HAS_UNISTD])])])
 AC_CHECK_HEADER([stdint.h],[AC_DEFINE([HAS_STDINT_H])])
 AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H])])
 AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT])], [],
@@ -1552,11 +1556,13 @@ AS_IF([$has_c99_float_ops],
          (ancient Visual Studio)]))])])])
 
 ## getentropy
-AC_CHECK_HEADER([unistd.h],
-  [AC_CHECK_DECL([getentropy],
-                 [AC_DEFINE([HAS_GETENTROPY])], [],
-                 [[#include <unistd.h>]])],
-  [])
+AS_CASE([$host],
+  [*-*-mingw32*|*-pc-windows],[],
+  [AC_CHECK_HEADER([unistd.h],
+    [AC_CHECK_DECL([getentropy],
+                   [AC_DEFINE([HAS_GETENTROPY])], [],
+                   [[#include <unistd.h>]])],
+    [])])
 
 ## getrusage
 AC_CHECK_FUNC([getrusage], [AC_DEFINE([HAS_GETRUSAGE])])

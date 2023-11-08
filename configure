@@ -14574,7 +14574,13 @@ then :
 
 fi
 
-       for ac_header in unistd.h
+# We don't want to use an emulation unistd.h on Windows (as provided by MinGW)
+# so we ensure it is not defined
+case $host in #(
+  *-*-mingw32*|*-pc-windows) :
+     ;; #(
+  *) :
+           for ac_header in unistd.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
 if test "x$ac_cv_header_unistd_h" = xyes
@@ -14584,7 +14590,8 @@ then :
 
 fi
 
-done
+done ;;
+esac
 ac_fn_c_check_header_compile "$LINENO" "stdint.h" "ac_cv_header_stdint_h" "$ac_includes_default"
 if test "x$ac_cv_header_stdint_h" = xyes
 then :
@@ -16334,7 +16341,11 @@ See \`config.log' for more details" "$LINENO" 5; } ;; #(
     ac_c_undeclared_builtin_options=$ac_cv_c_undeclared_builtin_options ;;
 esac
 
-ac_fn_c_check_header_compile "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
+case $host in #(
+  *-*-mingw32*|*-pc-windows) :
+     ;; #(
+  *) :
+    ac_fn_c_check_header_compile "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
 if test "x$ac_cv_header_unistd_h" = xyes
 then :
   ac_fn_check_decl "$LINENO" "getentropy" "ac_cv_have_decl_getentropy" "#include <unistd.h>
@@ -16345,7 +16356,8 @@ then :
 
 fi
 fi
-
+ ;;
+esac
 
 ## getrusage
 ac_fn_c_check_func "$LINENO" "getrusage" "ac_cv_func_getrusage"
