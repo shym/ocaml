@@ -1122,11 +1122,12 @@ AS_IF([! $arch64],
 
 # Support for C11 atomic types
 AC_CHECK_DECL([__STDC_NO_ATOMICS__],
-  [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
-
-OCAML_CC_SUPPORTS_ATOMIC([$cclibs])
-AS_IF([! $cc_supports_atomic],
-  [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
+  [AS_CASE([$ocaml_cv_cc_vendor],
+    # MSVC support is still incomplete and guarded, but sufficient
+    [msvc-*],
+      [internal_cppflags="$internal_cppflags -U__STDC_NO_ATOMICS__"],
+    [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
+  ])
 
 # Full support for C11 __thread variables
 # macOS and MinGW-64 have problems with __thread variables accessed from DLLs

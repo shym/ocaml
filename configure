@@ -15300,19 +15300,17 @@ esac
 ac_fn_check_decl "$LINENO" "__STDC_NO_ATOMICS__" "ac_cv_have_decl___STDC_NO_ATOMICS__" "$ac_includes_default" "$ac_c_undeclared_builtin_options" "CFLAGS"
 if test "x$ac_cv_have_decl___STDC_NO_ATOMICS__" = xyes
 then :
-  { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+  case $ocaml_cv_cc_vendor in #(
+  # MSVC support is still incomplete and guarded, but sufficient
+    msvc-*) :
+    internal_cppflags="$internal_cppflags -U__STDC_NO_ATOMICS__" ;; #(
+  *) :
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "C11 atomic support is required, use another C compiler
-See \`config.log' for more details" "$LINENO" 5; }
-fi
+See \`config.log' for more details" "$LINENO" 5; } ;;
+esac
 
-OCAML_CC_SUPPORTS_ATOMIC($cclibs)
-if ! $cc_supports_atomic
-then :
-  { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "C11 atomic support is required, use another C compiler
-See \`config.log' for more details" "$LINENO" 5; }
 fi
 
 # Full support for C11 __thread variables
