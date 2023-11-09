@@ -1045,8 +1045,6 @@ AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT])], [],
 AC_CHECK_HEADER([sys/select.h], [AC_DEFINE([HAS_SYS_SELECT_H])], [],
   [#include <sys/types.h>])
 
-AC_CHECK_HEADER([stdatomic.h], [AC_DEFINE([HAS_STDATOMIC_H])])
-
 AC_CHECK_HEADER([sys/mman.h], [AC_DEFINE([HAS_SYS_MMAN_H])])
 
 # Checks for types
@@ -1123,6 +1121,8 @@ AS_IF([! $arch64],
     [gcc-*], [cclibs="$cclibs -latomic"])])
 
 # Support for C11 atomic types
+AC_CHECK_DECL([__STDC_NO_ATOMICS__],
+  [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
 
 OCAML_CC_SUPPORTS_ATOMIC([$cclibs])
 AS_IF([! $cc_supports_atomic],

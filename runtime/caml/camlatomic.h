@@ -32,7 +32,7 @@ using std::memory_order_acq_rel;
 using std::memory_order_seq_cst;
 }
 
-#elif defined(HAS_STDATOMIC_H)
+#elif !defined(__STDC_NO_ATOMICS__)
 
 #include <stdatomic.h>
 #define ATOMIC_UINTNAT_INIT(x) (x)
@@ -40,7 +40,7 @@ typedef _Atomic uintnat atomic_uintnat;
 typedef _Atomic intnat atomic_intnat;
 
 #else
-#error "C11 atomics are unavailable on this platform. See camlatomic.h"
+#error "C11 atomic support is required, use another C compiler"
 #endif
 
 #endif /* CAML_ATOMIC_H */
