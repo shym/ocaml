@@ -181,6 +181,10 @@ Working version
 - #?????: Define and use the CAMLthread_local macro for TLS variables.
   (Antonin Décimo and Samuel Hym, review by ?????)
 
+- #?????: Unify MSVC and MinGW-w64 code paths, by always using WinAPI
+  directly.
+  (David Allsopp, Antonin Décimo, and Samuel Hym, review by ????)
+
 ### Code generation and optimizations:
 
 - #11239: on x86-64 and RISC-V, reduce alignment of OCaml stacks from 16 to 8.
