@@ -178,6 +178,9 @@ Working version
   Updates usage of sigprocmask to pthread_sigmask in otherlibs/unix.
   (Max Slater, review by Miod Vallat and Xavier Leroy)
 
+- #?????: Define and use the CAMLthread_local macro for TLS variables.
+  (Antonin Décimo and Samuel Hym, review by ?????)
+
 ### Code generation and optimizations:
 
 - #11239: on x86-64 and RISC-V, reduce alignment of OCaml stacks from 16 to 8.
