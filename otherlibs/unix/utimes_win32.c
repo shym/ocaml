@@ -15,6 +15,9 @@
 
 #define CAML_INTERNALS
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include <caml/fail.h>
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -22,8 +25,6 @@
 #include <caml/osdeps.h>
 #include <caml/winsupport.h>
 #include "unixsupport.h"
-
-#include <windows.h>
 
 CAMLprim value caml_unix_utimes(value path, value atime, value mtime)
 {
