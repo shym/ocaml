@@ -13,6 +13,9 @@
 /*                                                                        */
 /**************************************************************************/
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <time.h>
