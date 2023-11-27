@@ -15,8 +15,7 @@
 
 /* Win32 implementation of the "st" interface */
 
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0400
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 Caml_inline void st_msleep(int msec)
