@@ -364,6 +364,10 @@ extern double caml_log1p(double);
 #define T(x) L ## x
 
 #define main_os wmain
+
+#define WIN32_LEAN_AND_MEAN
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
 #endif
 
 #define access_os _waccess
