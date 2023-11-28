@@ -114,6 +114,14 @@ extern void caml_stash_backtrace(value exn, value * sp, int reraise);
 CAMLextern void caml_load_main_debug_info(void);
 #endif
 
+#ifdef _MSC_VER
+#ifdef _WIN64
+typedef __int64 ssize_t;
+#else
+typedef int ssize_t;
+#endif
+#endif
+
 /* Obtain up to [max_slots] of the callstack of the current domain,
  * including parent fibers. The callstack is written into [*buffer_p],
  * current size [*alloc_size_p], which should be reallocated (on the C
