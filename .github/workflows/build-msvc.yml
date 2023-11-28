@@ -1,0 +1,90 @@
+name: Build with MSVC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - '4.**'
+      - '5.**'
+      - 'trunk'
+  pull_request:
+
+jobs:
+  build:
+    permissions: {}
+
+    runs-on: windows-latest
+
+    timeout-minutes: 60
+
+    strategy:
+      matrix:
+        x86_64: [true, false]
+
+    steps:
+      - name: Save pristine PATH
+        run: |
+          echo "PRISTINE_PATH=${env:Path}" >> "${env:GITHUB_ENV}"
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          # This is cl version 19.28, Visual Studio version 17.8
+          toolset: 14.38
+          arch: ${{ matrix.x86_64 && 'x64' || 'x86' }}
+
+      - name: Fetch OCaml
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Restore Cygwin cache
+        uses: actions/cache/restore@v3
+        env:
+          PATH: ${{ env.PRISTINE_PATH }}
+        with:
+          path: |
+            C:\cygwin-packages
+          key: cygwin-packages
+
+      - name: Install Cygwin (Cygwin)
+        uses: cygwin/cygwin-install-action@v3
+        with:
+          packages: make,bash
+          install-dir: 'D:\cygwin'
+
+      - name: Save Cygwin cache
+        uses: actions/cache/save@v3
+        env:
+          PATH: ${{ env.PRISTINE_PATH }}
+        with:
+          path: |
+            C:\cygwin-packages
+          key: cygwin-packages
+
+      - name: Build OCaml
+        shell: bash -e {0}
+        env:
+          HOST: ${{ matrix.x86_64 && 'x86_64-pc-windows' || 'i686-pc-windows' }}
+        run: >-
+          mkdir /cygdrive/d/ocaml ;
+          eval $(tools/msvs-promote-path) ;
+          ./configure --host=$HOST --prefix=/cygdrive/d/ocaml ;
+          make ;
+          make install ;
+
+      - name: Display configuration and set up PATH
+        run: |
+          D:\ocaml\bin\ocamlc -config
+          echo "/* dummy */" >> dummy.c
+          cl /Bv -c dummy.c
+          echo "D:\ocaml\bin" >> ${env:GITHUB_PATH}
+
+      - name: Run the test suite
+        shell: bash -e {0}
+        run: >-
+          eval $(tools/msvs-promote-path) ;
+          make tests ;
