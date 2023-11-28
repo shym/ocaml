@@ -16,10 +16,6 @@ jobs:
 
     timeout-minutes: 60
 
-    strategy:
-      matrix:
-        bytecodeonly: [true, false]
-
     steps:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -39,15 +35,12 @@ jobs:
 
       - name: Build OCaml
         shell: bash -e {0}
-        env:
-          NATIVE: ${{ matrix.bytecodeonly && '--disable-native-compiler' || '' }}
         run: |
-          mkdir /cygdrive/d/ocaml                                                                #
-          eval $(tools/msvs-promote-path)                                                        #
-          ./configure --host=x86_64-pc-windows --with-flexdll --prefix=/cygdrive/d/ocaml $NATIVE #
-          make                                                                                   #
-          make install                                                                           #
-        if: "steps.cache.outputs.cache-hit != 'true'"
+          mkdir /cygdrive/d/ocaml                                                        #
+          eval $(tools/msvs-promote-path)                                                #
+          ./configure --host=x86_64-pc-windows --with-flexdll --prefix=/cygdrive/d/ocaml #
+          make                                                                           #
+          make install                                                                   #
 
       - name: Display configuration and set up PATH
         run: |
@@ -60,5 +53,5 @@ jobs:
       - name: Run the test suite
         shell: bash -e {0}
         run: |
-          eval $(ocaml/tools/msvs-promote-path) #
-          make tests                            #
+          eval $(tools/msvs-promote-path) #
+          make tests                      #
