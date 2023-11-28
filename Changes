@@ -199,6 +199,9 @@ Working version
 - #12809: Add ThreadSanitizer support to FreeBSD/amd64
   (Miod Vallat, review by Gabriel Scherer)
 
+- #?????: Define and use the CAMLthread_local macro for TLS variables.
+  (Antonin Décimo and Samuel Hym, review by ?????)
+
 ### Code generation and optimizations:
 
 - #11239: on x86-64 and RISC-V, reduce alignment of OCaml stacks from 16 to 8.
