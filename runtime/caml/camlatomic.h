@@ -31,14 +31,12 @@ using std::memory_order_acq_rel;
 using std::memory_order_seq_cst;
 }
 
-#elif !defined(__STDC_NO_ATOMICS__)
+#else
 
 #include <stdatomic.h>
 typedef _Atomic uintnat atomic_uintnat;
 typedef _Atomic intnat atomic_intnat;
 
-#else
-#error "C11 atomic support is required, use another C compiler"
 #endif
 
 #endif /* CAML_ATOMIC_H */
