@@ -571,21 +571,16 @@ caml_reperform:
         PUBLIC  caml_resume
         ALIGN   4
 caml_resume:
-    ; %rax -> fiber, %rbx -> fun, %rdi -> arg
+    ; %rax -> fiber, %rbx -> fun, %rdi -> arg, %rsi -> last_fiber
         lea     r10, [rax-1]  ; %r10 (new stack) = Ptr_val(%rax)
-        mov     rax, rdi      ; %rax := argument to function in %rbx
+        mov     rax, rdi      ; %rax := argument to the function in %rbx
     ;  check if stack null, then already used
         test    r10, r10
         jz      L502
-    ; Find end of list of stacks and add current
-        mov     rsi, r10
-L501:
-        mov     rcx, qword ptr [rsi+16]
-        mov     rsi, qword ptr [rcx+24]
-        test    rsi, rsi
-        jnz     L501
+    ; Add current stack to the last fiber
+        mov     rdi, qword ptr [rsi+15]
         mov     rsi, Caml_state(current_stack)
-        mov     qword ptr [rcx+24], rsi
+        mov     qword ptr [rdi+24], rsi
         SWITCH_OCAML_STACKS
         jmp     qword ptr [rbx]
 L502:
