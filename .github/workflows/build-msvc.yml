@@ -6,10 +6,10 @@ concurrency:
 
 on:
   push:
-    branches:
-      - '4.**'
-      - '5.**'
-      - 'trunk'
+    # branches:
+    #   - '4.**'
+    #   - '5.**'
+    #   - 'trunk'
   pull_request:
 
 jobs:
