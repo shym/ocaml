@@ -2594,5 +2594,4 @@ ${mkdll_ldflags}"
 "$mkexe_via_cc_ldflags \$(OUTPUTEXE)\$(1) \$(2)"])
 ])
 
-AC_CONFIG_SUBDIRS([winpthreads])
 AC_OUTPUT
