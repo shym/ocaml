@@ -543,8 +543,7 @@ AC_ARG_WITH([flexdll],
 AC_ARG_WITH([winpthreads-msvc],
   [AS_HELP_STRING([--with-winpthreads-msvc],
     [build winpthreads (only for the MSVC port) from the given sources])],
-  [AS_IF([test x"$withval" = 'xyes' || test x"$withval" = 'x'],
-    [with_winpthreads_msvc=winpthreads])])
+  [AS_IF([test x"$withval" = 'xyes'], [with_winpthreads_msvc=winpthreads])])
 
 AC_ARG_WITH([zstd],
   [AS_HELP_STRING([--without-zstd],
@@ -1049,11 +1048,12 @@ AS_IF([test x"$with_winpthreads_msvc" = "xno"],
      dnl just use that, however if another directory has been specified with
      dnl --with-winpthreads-msvc=<path> then copy the contents of <path> to
      dnl winpthreads-sources.
-    AS_IF([test x"$with_winpthreads_msvc" = x'winpthreads'],
+    AS_IF([m4_normalize([test x"$with_winpthreads_msvc" = 'x'
+                          || test x"$with_winpthreads_msvc" = x'winpthreads'])],
       [AS_IF([test -f 'winpthreads/src/winpthread_internal.h'],
         [winpthreads_source_dir=winpthreads
         iwinpthreadsdir='$(ROOTDIR)/winpthreads/include'],
-        [AC_MSG_RESULT([requested but not available (uninitialized submodule?)])
+        [AC_MSG_RESULT([required but not available (uninitialized submodule?)])
         AC_MSG_ERROR([exiting])])],
       [rm -rf winpthreads-sources
       AS_IF([test -f "$with_winpthreads_msvc/src/winpthread_internal.h"],
