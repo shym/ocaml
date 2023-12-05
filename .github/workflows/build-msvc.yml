@@ -43,6 +43,7 @@ jobs:
           mkdir /cygdrive/d/ocaml                                                        #
           eval $(tools/msvs-promote-path)                                                #
           ./configure --host=x86_64-pc-windows --with-flexdll --prefix=/cygdrive/d/ocaml #
+          exit 123 #
           make                                                                           #
           make install                                                                   #
 
