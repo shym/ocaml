@@ -543,7 +543,8 @@ AC_ARG_WITH([flexdll],
 AC_ARG_WITH([winpthreads-msvc],
   [AS_HELP_STRING([--with-winpthreads-msvc],
     [build winpthreads (only for the MSVC port) from the given sources])],
-  [AS_IF([test x"$withval" = 'xyes'],[with_winpthreads_msvc=winpthreads])])
+  [AS_IF([test x"$withval" = 'xyes' || test x"$withval" = 'x'],
+    [with_winpthreads_msvc=winpthreads])])
 
 AC_ARG_WITH([zstd],
   [AS_HELP_STRING([--without-zstd],
@@ -986,46 +987,6 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$host],
   [,*,,*-w64-mingw32*|,*,,*-pc-windows],
     [AC_MSG_ERROR([flexlink is required for native Win32])])
 
-# Winpthreads emulation library for the MSVC port
-AC_MSG_CHECKING([for winpthreads sources])
-AS_IF([test x"$with_winpthreads_msvc" = "xno"],
-  [winpthreads_source_dir=''
-  AC_MSG_RESULT([disabled])],
-  [winpthreadmsg=''
-  AS_CASE([$target],
-    [*-pc-windows],
-    [dnl When bootstrapping from the git submodule (winpthreads directory),
-     dnl just use that, however if another directory has been specified with
-     dnl --with-winpthreads-msvc=<path> then copy the contents of <path> to
-     dnl winpthreads-sources.
-    AS_IF([m4_normalize([test x"$with_winpthreads_msvc" = x
-                          || test x"$with_winpthreads_msvc" = xwinpthreads])],
-      [AS_IF([test -f 'winpthreads/src/winpthread_internal.h'],
-        [winpthreads_source_dir=winpthreads
-        iwinpthreadsdir='$(ROOTDIR)/winpthreads/include'
-        with_winpthreads="$iflexdir"],
-        [AS_IF([test x"$with_winpthreads" != 'x'],
-          [AC_MSG_RESULT([requested but not available])
-          AC_MSG_ERROR([exiting])])])],
-      [rm -rf winpthreads-sources
-      AS_IF([test -f "$with_winpthreads_msvc/src/winpthread_internal.h"],
-        [mkdir -p winpthreads-sources/src winpthreads-sources/include
-        cp "$with_winpthreads_msvc"/src/*.[ch] winpthreads-sources/src
-        cp "$with_winpthreads_msvc"/include/*.h winpthreads-sources/include
-        winpthreads_source_dir='winpthreads-sources'
-        iwinpthreadsdir='$(ROOTDIR)/winpthreads-sources/include'
-        winpthreadsmsg=" (from $with_winpthreads_msvc)"],
-        [AC_MSG_RESULT([requested but not available])
-        AC_MSG_ERROR([exiting])])])
-    AS_IF([test x"$winpthreads_source_dir" = 'x'],
-      [AC_MSG_RESULT([no])],
-      [AC_MSG_RESULT([$iwinpthreadsdir$winpthreadmsg])
-      internal_cppflags="$internal_cppflags -I $iwinpthreadsdir"])],
-    [AS_IF([test x"$with_winpthreads_msvc" != 'x'],
-      [AC_MSG_RESULT([requested but not supported])
-      AC_MSG_ERROR([exiting])],
-      [AC_MSG_RESULT([not useful])])])])
-
 mkexe_cmd_exp="$CC"
 
 AS_CASE([$cc_basename,$host],
@@ -1075,6 +1036,44 @@ AS_CASE([$cc_basename,$host],
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
   [gcc*,powerpc-*-linux*],
     [oc_ldflags="-mbss-plt"])
+
+# Winpthreads emulation library for the MSVC port
+AC_MSG_CHECKING([for winpthreads sources])
+AS_IF([test x"$with_winpthreads_msvc" = "xno"],
+  [winpthreads_source_dir=''
+  AC_MSG_RESULT([disabled])],
+  [winpthreadmsg=''
+  AS_CASE([$target],
+    [*-pc-windows],
+    [dnl When bootstrapping from the git submodule (winpthreads directory),
+     dnl just use that, however if another directory has been specified with
+     dnl --with-winpthreads-msvc=<path> then copy the contents of <path> to
+     dnl winpthreads-sources.
+    AS_IF([test x"$with_winpthreads_msvc" = x'winpthreads'],
+      [AS_IF([test -f 'winpthreads/src/winpthread_internal.h'],
+        [winpthreads_source_dir=winpthreads
+        iwinpthreadsdir='$(ROOTDIR)/winpthreads/include'],
+        [AC_MSG_RESULT([requested but not available (uninitialized submodule?)])
+        AC_MSG_ERROR([exiting])])],
+      [rm -rf winpthreads-sources
+      AS_IF([test -f "$with_winpthreads_msvc/src/winpthread_internal.h"],
+        [mkdir -p winpthreads-sources/src winpthreads-sources/include
+        cp "$with_winpthreads_msvc"/src/*.[ch] winpthreads-sources/src
+        cp "$with_winpthreads_msvc"/include/*.h winpthreads-sources/include
+        winpthreads_source_dir='winpthreads-sources'
+        iwinpthreadsdir='$(ROOTDIR)/winpthreads-sources/include'
+        winpthreadsmsg=" (from $with_winpthreads_msvc)"],
+        [AC_MSG_RESULT([requested but not available])
+        AC_MSG_ERROR([exiting])])])
+    AS_IF([test x"$winpthreads_source_dir" = 'x'],
+      [AC_MSG_RESULT([no])],
+      [AC_MSG_RESULT(['$(ROOTDIR)/'$winpthreads_source_dir$winpthreadmsg])
+      OCAML_TEST_WINPTHREADS_PTHREAD_H([$iwinpthreadsdir])
+      internal_cppflags="$internal_cppflags -I $iwinpthreadsdir"])],
+    [AS_IF([test x"$with_winpthreads_msvc" != 'x'],
+      [AC_MSG_RESULT([requested but not supported])
+      AC_MSG_ERROR([exiting])],
+      [AC_MSG_RESULT([skipping on that platform])])])])
 
 ## Program to use to install files
 AC_PROG_INSTALL
