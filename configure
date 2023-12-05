@@ -14470,8 +14470,9 @@ then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: '$(ROOTDIR)/'$winpthreads_source_dir$winpthreadmsg" >&5
-printf "%s\n" "'$(ROOTDIR)/'$winpthreads_source_dir$winpthreadmsg" >&6; }
+  res='$(ROOTDIR)/'"$winpthreads_source_dir"
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $res$winpthreadmsg" >&5
+printf "%s\n" "$res$winpthreadmsg" >&6; }
 
 
   saved_CC="$CC"
