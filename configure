@@ -855,6 +855,7 @@ mklib
 AR
 shebangscripts
 long_shebang
+winpthreads_source_dir
 flexlink_flags
 flexdll_dir
 bootstrapping_flexdll
@@ -3364,6 +3365,7 @@ LINEAR_MAGIC_NUMBER=Caml1999L033
 # Note: This is present for the flexdll bootstrap where it exposed as the old
 # TOOLPREF variable. It would be better if flexdll where updated to require
 # WINDRES instead.
+
 
 
 

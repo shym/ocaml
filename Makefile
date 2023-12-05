@@ -1080,6 +1080,19 @@ partialclean::
 
 ## Lists of source files
 
+ifneq "$(WINPTHREADS_SOURCE_DIR)" ""
+winpthreads_SOURCES = $(addprefix $(WINPTHREADS_SOURCE_DIR)/src/, \
+  cond.c \
+  misc.c \
+  mutex.c \
+  rwlock.c \
+  sched.c \
+  spinlock.c \
+  thread.c)
+
+winpthreads_OBJECTS = $(winpthreads_SOURCES:.c=.$(O))
+endif
+
 runtime_COMMON_C_SOURCES = \
   addrmap \
   afl \
