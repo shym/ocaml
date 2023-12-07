@@ -34,3 +34,8 @@ let runtime =
 
 let tools =
   Filename.make_path [srcdir; "tools"]
+
+let winpthreads_headers =
+  match Ocamltest_config.winpthreads_srcdir with
+  | "" -> None
+  | wpth -> Some (Filename.make_path [srcdir; wpth; "include"])
