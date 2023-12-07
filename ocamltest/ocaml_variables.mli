@@ -116,6 +116,10 @@ val ocamlopt_opt_exit_status : Variables.t
 val ocamlrunparam : Variables.t
 
 val ocamlsrcdir : Variables.t
+val rootdir : Variables.t
+(** [ROOTDIR] is the variable used in Makefile that corresponds to
+    [ocamlsrcdir]; as such, it is sometimes used in C flags that ocamltest
+    should reuse *)
 
 val ocamldebug_flags : Variables.t
 
