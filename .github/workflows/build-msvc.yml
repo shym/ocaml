@@ -76,6 +76,22 @@ jobs:
           make V=1 ;
           make install ;
 
+      - name: Upload configure artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            Makefile.build_config
+            Makefile.config
+            stdlib/sys.ml
+            ocamltest/ocamltest_config.ml
+            utils/config.common.ml
+            utils/config.generated.ml
+            runtime/caml/exec.h
+            runtime/caml/m.h
+            runtime/caml/s.h
+            runtime/caml/version.h
+          name: config
+
       - name: Display configuration and set up PATH
         run: |
           D:\ocaml\bin\ocamlc -config
