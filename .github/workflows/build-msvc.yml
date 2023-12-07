@@ -21,6 +21,10 @@ jobs:
     timeout-minutes: 60
 
     steps:
+      - name: Save pristine PATH
+        run: |
+          echo "PRISTINE_PATH=${env:Path}" >> "${env:GITHUB_ENV}"
+
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -31,11 +35,29 @@ jobs:
         with:
           submodules: true
 
+      - name: Restore Cygwin cache
+        uses: actions/cache/restore@v3
+        env:
+          PATH: ${{ env.PRISTINE_PATH }}
+        with:
+          path: |
+            C:\cygwin-packages
+          key: cygwin-packages
+
       - name: Install Cygwin (Cygwin)
         uses: cygwin/cygwin-install-action@v3
         with:
           packages: make,bash,mingw64-x86_64-gcc-core
           install-dir: 'D:\cygwin'
+
+      - name: Save Cygwin cache
+        uses: actions/cache/save@v3
+        env:
+          PATH: ${{ env.PRISTINE_PATH }}
+        with:
+          path: |
+            C:\cygwin-packages
+          key: cygwin-packages
 
       - name: Build OCaml
         shell: bash -e {0}
