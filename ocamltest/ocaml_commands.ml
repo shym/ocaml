@@ -18,9 +18,9 @@
 let ocamlrun program =
   Ocaml_files.ocamlrun ^ " " ^ program
 
-let ocamlrun_ocamlc = ocamlrun Ocaml_files.ocamlc ^ " -verbose"
+let ocamlrun_ocamlc = ocamlrun Ocaml_files.ocamlc
 
-let ocamlrun_ocamlopt = ocamlrun Ocaml_files.ocamlopt ^ " -verbose"
+let ocamlrun_ocamlopt = ocamlrun Ocaml_files.ocamlopt
 
 let ocamlrun_ocaml = ocamlrun Ocaml_files.ocaml
 
