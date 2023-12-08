@@ -828,6 +828,10 @@ AS_CASE([$host],
       [common_cflags="-O2 -fno-strict-aliasing -fwrapv";
       internal_cflags="$cc_warnings -fno-common -fexcess-precision=standard \
 -Wvla"],
+    [msvc-0*|msvc-1[[0-8]]*|msvc-19[[012]]*|msvc-193[[0-7]]],
+      # No C11 atomics support
+      [AC_MSG_ERROR(m4_normalize([This version of MSVC is too old.
+      Please use MSVC version 19.38 or above.]), 69)],
     [msvc-*],
       [common_cflags="-nologo -O2 -Gy- -MD $cc_warnings"
       common_cppflags="-D_CRT_SECURE_NO_DEPRECATE"
