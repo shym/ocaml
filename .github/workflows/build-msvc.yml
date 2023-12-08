@@ -62,11 +62,11 @@ jobs:
       - name: Build OCaml
         shell: bash -e {0}
         run: |
-          mkdir /cygdrive/d/ocaml                                         #
-          eval $(tools/msvs-promote-path)                                 #
-          ./configure --host=x86_64-pc-windows --prefix=/cygdrive/d/ocaml #
-          make V=1                                                        #
-          make install                                                    #
+          mkdir /cygdrive/d/ocaml                                                            #
+          eval $(tools/msvs-promote-path)                                                    #
+          ./configure --host=x86_64-pc-windows --prefix=/cygdrive/d/ocaml --disable-ocamldoc #
+          make V=1                                                                           #
+          make install                                                                       #
 
       - name: Upload configure artifacts
         uses: actions/upload-artifact@v3
