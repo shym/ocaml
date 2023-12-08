@@ -64,7 +64,7 @@ jobs:
         run: |
           mkdir /cygdrive/d/ocaml                                                        #
           eval $(tools/msvs-promote-path)                                                #
-          ./configure --host=x86_64-pc-windows --with-flexdll --prefix=/cygdrive/d/ocaml #
+          ./configure --host=x86_64-pc-windows --prefix=/cygdrive/d/ocaml --disable-ocamldoc #
           make V=1                                                                       #
           make install                                                                   #
 
