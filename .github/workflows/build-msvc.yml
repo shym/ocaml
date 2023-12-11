@@ -35,6 +35,13 @@ jobs:
         with:
           submodules: true
 
+      - name: Fetch winpthreads
+        uses: actions/checkout@v4
+        with:
+          repository: shym/winpthreads
+          ref: v3
+          path: wpth-v3
+
       - name: Restore Cygwin cache
         uses: actions/cache/restore@v3
         env:
@@ -64,7 +71,7 @@ jobs:
         run: |
           mkdir /cygdrive/d/ocaml                                                            #
           eval $(tools/msvs-promote-path)                                                    #
-          ./configure --host=x86_64-pc-windows --prefix=/cygdrive/d/ocaml --disable-ocamldoc #
+          ./configure --host=x86_64-pc-windows --prefix=/cygdrive/d/ocaml --disable-ocamldoc --with-winpthreads-msvc=wpth-v3 #
           make V=1                                                                           #
           make install                                                                       #
 
