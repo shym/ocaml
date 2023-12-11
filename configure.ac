@@ -1063,7 +1063,8 @@ AS_IF([test x"$with_winpthreads_msvc" = "xno"],
       [rm -rf winpthreads-sources
       AS_IF([test -f "$with_winpthreads_msvc/src/winpthread_internal.h"],
         [mkdir -p winpthreads-sources/src winpthreads-sources/include
-        cp "$with_winpthreads_msvc"/src/*.[ch] winpthreads-sources/src
+        cp "$with_winpthreads_msvc"/src/*.c winpthreads-sources/src
+        cp "$with_winpthreads_msvc"/src/*.h winpthreads-sources/src
         cp "$with_winpthreads_msvc"/include/*.h winpthreads-sources/include
         winpthreads_source_dir='winpthreads-sources'
         iwinpthreadsdir='$(ROOTDIR)/winpthreads-sources/include'

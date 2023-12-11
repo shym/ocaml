@@ -14459,7 +14459,8 @@ else $as_nop
       if test -f "$with_winpthreads_msvc/src/winpthread_internal.h"
 then :
   mkdir -p winpthreads-sources/src winpthreads-sources/include
-        cp "$with_winpthreads_msvc"/src/*.ch winpthreads-sources/src
+        cp "$with_winpthreads_msvc"/src/*.c winpthreads-sources/src
+        cp "$with_winpthreads_msvc"/src/*.h winpthreads-sources/src
         cp "$with_winpthreads_msvc"/include/*.h winpthreads-sources/include
         winpthreads_source_dir='winpthreads-sources'
         iwinpthreadsdir='$(ROOTDIR)/winpthreads-sources/include'
