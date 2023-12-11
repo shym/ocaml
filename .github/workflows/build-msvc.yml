@@ -65,7 +65,7 @@ jobs:
         run: |
           mkdir /cygdrive/d/ocaml                                                            #
           eval $(tools/msvs-promote-path)                                                    #
-          ./configure --host=x86-pc-windows --prefix=/cygdrive/d/ocaml --disable-ocamldoc #
+          ./configure --host=i686-pc-windows --prefix=/cygdrive/d/ocaml --disable-ocamldoc #
           make V=1                                                                           #
           make install                                                                       #
 
