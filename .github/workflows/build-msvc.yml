@@ -14,6 +14,10 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        x86_64: [true, false]
+
     permissions: {}
 
     runs-on: windows-latest
@@ -28,6 +32,7 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
+          arch: ${{ matrix.x86_64 && 'x64' || 'x86' }}
           toolset: 14.38
 
       - name: Fetch OCaml
@@ -61,12 +66,14 @@ jobs:
 
       - name: Build OCaml
         shell: bash -e {0}
+        env:
+          HOST: ${{ matrix.x86_64 && 'x86_64-pc-windows' || 'i686-pc-windows' }}
         run: |
-          mkdir /cygdrive/d/ocaml                                                            #
-          eval $(tools/msvs-promote-path)                                                    #
-          ./configure --host=x86_64-pc-windows --prefix=/cygdrive/d/ocaml --disable-ocamldoc #
-          make V=1                                                                           #
-          make install                                                                       #
+          mkdir /cygdrive/d/ocaml                                                #
+          eval $(tools/msvs-promote-path)                                        #
+          ./configure --host=$HOST --prefix=/cygdrive/d/ocaml --disable-ocamldoc #
+          make V=1                                                               #
+          make install                                                           #
 
       - name: Upload configure artifacts
         uses: actions/upload-artifact@v3
@@ -104,6 +111,7 @@ jobs:
           # To make sure that the canonical files are not just empty but just
           # reasonable cleaned-up versions of the raw dumpbins
           wc -l runtime/amd64*.dump runtime/amd64*.canonical                                                                     #
+        if: matrix.x86_64
 
       - name: Run the test suite
         shell: bash -e {0}
