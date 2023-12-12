@@ -478,13 +478,6 @@ let output_cds_file outfile =
 
 (* Output a bytecode executable as a C file *)
 
-(* Primitives declared in the included headers but re-declared in the
-   primitives table need to be guarded and not declared twice. *)
-let guarded_primitives = [
-    "caml_get_public_method", "caml__get_public_method";
-    "caml_set_oo_id", "caml__set_oo_id";
-  ]
-
 let link_bytecode_as_c tolink outfile with_main =
   let outchan = open_out outfile in
   Misc.try_finally
@@ -499,15 +492,12 @@ let link_bytecode_as_c tolink outfile with_main =
 \n#ifdef __cplusplus\
 \nextern \"C\" {\
 \n#endif";
-       List.iter (fun (f, f') -> Printf.fprintf outchan "\n#define %s %s" f f')
-         guarded_primitives;
        output_string outchan "\
+\n#define IN_CAMLPRIM_C\n\
 \n#include <caml/mlvalues.h>\
 \n#include <caml/startup.h>\
 \n#include <caml/sys.h>\
 \n#include <caml/misc.h>\n";
-       List.iter (fun (f, _) -> Printf.fprintf outchan "\n#undef %s" f)
-         guarded_primitives;
        output_string outchan "\nstatic int caml_code[] = {\n";
        Symtable.init();
        clear_crc_interfaces ();
@@ -687,12 +677,9 @@ let link objfiles output_name =
          output_string poc "\
          #ifdef __cplusplus\n\
          extern \"C\" {\n\
-         #endif";
-         List.iter (fun (f, f') -> Printf.fprintf poc "\n#define %s %s" f f')
-           guarded_primitives;
-         output_string poc "\n#include <caml/mlvalues.h>\n";
-         List.iter (fun (f, _) -> Printf.fprintf poc "#undef %s\n" f)
-           guarded_primitives;
+         #endif\n\
+         #define IN_CAMLPRIM_C\n\
+         #include <caml/mlvalues.h>\n";
          Symtable.output_primitive_table poc;
          output_string poc "\
          #ifdef __cplusplus\n\
