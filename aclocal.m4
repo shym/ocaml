@@ -415,7 +415,8 @@ AC_DEFUN([OCAML_TEST_WINPTHREADS_PTHREAD_H], [
 
   AS_IF([test -n "$1"],[CPPFLAGS="-I $1 $CPPFLAGS"])
   AC_CHECK_HEADER([pthread.h],[],
-    [AC_MSG_ERROR([cannot find pthread.h in winpthreads])])
+    [AC_MSG_ERROR([cannot find pthread.h in winpthreads])],
+    [#include <windows.h>])
 
   OCAML_CC_RESTORE_VARIABLES
 ])
