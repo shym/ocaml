@@ -257,12 +257,16 @@ Caml_inline header_t Hd_val(value val)
 #define Object_tag 248
 #define Class_val(val) Field((val), 0)
 #define Oid_val(val) Long_val(Field((val), 1))
+#ifndef IN_CAMLPRIM_C
+/* Skip the declaration when in camlprim.c since it will later expect it to be
+ * of type value caml_get_public_method(void) */
 CAMLextern value caml_get_public_method (value obj, value tag);
 /* Called as:
    caml_callback(caml_get_public_method(obj, caml_hash_variant(name)), obj) */
 /* caml_get_public_method returns 0 if tag not in the table.
    Note however that tags being hashed, same tag does not necessarily mean
    same method name. */
+#endif
 
 Caml_inline value Val_ptr(void* p)
 {
@@ -450,7 +454,11 @@ CAMLextern value caml_atom(tag_t);
 #define Is_none(v) ((v) == Val_none)
 #define Is_some(v) Is_block(v)
 
+#ifndef IN_CAMLPRIM_C
+/* Skip the declaration when in camlprim.c since it will later expect it to be
+ * of type value caml_set_oo_id(void) */
 CAMLextern value caml_set_oo_id(value obj);
+#endif
 
 /* Header for out-of-heap blocks. */
 
