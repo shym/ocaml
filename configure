@@ -14493,8 +14493,7 @@ printf "%s\n" "$res$winpthreadmsg" >&6; }
 then :
   CPPFLAGS="-I $winpthreads_source_dir/include $CPPFLAGS"
 fi
-  ac_fn_c_check_header_compile "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "#include <windows.h>
-"
+  ac_fn_c_check_header_compile "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
 if test "x$ac_cv_header_pthread_h" = xyes
 then :
 
