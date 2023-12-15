@@ -14444,7 +14444,7 @@ then :
   if test -f 'winpthreads/src/winpthread_internal.h'
 then :
   winpthreads_source_dir=winpthreads
-        iwinpthreadsdir='$(ROOTDIR)/winpthreads/include'
+        iwinpthreadsdir="$ocamlsrcdir\winpthreads\include"
 else $as_nop
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: required but not available (uninitialized submodule?)" >&5
 printf "%s\n" "required but not available (uninitialized submodule?)" >&6; }
@@ -14459,7 +14459,7 @@ then :
         cp "$with_winpthreads_msvc"/src/*.h winpthreads-sources/src
         cp "$with_winpthreads_msvc"/include/*.h winpthreads-sources/include
         winpthreads_source_dir='winpthreads-sources'
-        iwinpthreadsdir='$(ROOTDIR)/winpthreads-sources/include'
+        iwinpthreadsdir="$ocamlsrcdir\\winpthreads-sources\\include"
         winpthreadsmsg=" (from $with_winpthreads_msvc)"
 else $as_nop
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: requested but not available" >&5
@@ -14513,7 +14513,7 @@ fi
   LIBS="$saved_LIBS"
 
 
-      internal_cppflags="$internal_cppflags -I $iwinpthreadsdir"
+      internal_cppflags="$internal_cppflags -I$iwinpthreadsdir"
 fi ;; #(
   *) :
     if test x"$with_winpthreads_msvc" != 'x'

@@ -1046,7 +1046,7 @@ AS_IF([test x"$with_winpthreads_msvc" = "xno"],
                           || test x"$with_winpthreads_msvc" = x'winpthreads'])],
       [AS_IF([test -f 'winpthreads/src/winpthread_internal.h'],
         [winpthreads_source_dir=winpthreads
-        iwinpthreadsdir='$(ROOTDIR)/winpthreads/include'],
+        iwinpthreadsdir="$ocamlsrcdir\winpthreads\include"],
         [AC_MSG_RESULT([required but not available (uninitialized submodule?)])
         AC_MSG_ERROR([exiting])])],
       [rm -rf winpthreads-sources
@@ -1056,7 +1056,7 @@ AS_IF([test x"$with_winpthreads_msvc" = "xno"],
         cp "$with_winpthreads_msvc"/src/*.h winpthreads-sources/src
         cp "$with_winpthreads_msvc"/include/*.h winpthreads-sources/include
         winpthreads_source_dir='winpthreads-sources'
-        iwinpthreadsdir='$(ROOTDIR)/winpthreads-sources/include'
+        iwinpthreadsdir="$ocamlsrcdir\\winpthreads-sources\\include"
         winpthreadsmsg=" (from $with_winpthreads_msvc)"],
         [AC_MSG_RESULT([requested but not available])
         AC_MSG_ERROR([exiting])])])
@@ -1065,7 +1065,7 @@ AS_IF([test x"$with_winpthreads_msvc" = "xno"],
       [res='$(ROOTDIR)/'"$winpthreads_source_dir"
       AC_MSG_RESULT([$res$winpthreadmsg])
       OCAML_TEST_WINPTHREADS_PTHREAD_H([$winpthreads_source_dir/include])
-      internal_cppflags="$internal_cppflags -I $iwinpthreadsdir"])],
+      internal_cppflags="$internal_cppflags -I$iwinpthreadsdir"])],
     [AS_IF([test x"$with_winpthreads_msvc" != 'x'],
       [AC_MSG_RESULT([requested but not supported])
       AC_MSG_ERROR([exiting])],
