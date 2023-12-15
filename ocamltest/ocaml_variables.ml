@@ -200,9 +200,6 @@ let ocamlrunparam =
 let ocamlsrcdir = make ("ocamlsrcdir",
   "Where OCaml sources are")
 
-let rootdir = make ("ROOTDIR",
-  "Where OCaml sources are")
-
 let ocamldebug_flags = make ("ocamldebug_flags",
   "Flags for ocamldebug")
 
