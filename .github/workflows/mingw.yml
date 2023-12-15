@@ -1,0 +1,49 @@
+name: Mingw
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on: [push]
+
+jobs:
+  build:
+    permissions: {}
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up CSC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          toolset: 14.38
+
+      - name: Fetch OCaml
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install Cygwin
+        uses: cygwin/cygwin-install-action@v3
+        with:
+          packages: make,bash,mingw64-i686-gcc-core,mingw64-i686-gcc-g++,mingw64-x86_64-gcc-core,mingw64-x86_64-gcc-g++
+          install-dir: 'D:\cygwin'
+
+      - name: Build OCaml
+        shell: bash -e {0}
+        run: >-
+          mkdir /cygdrive/d/ocaml ;
+          ./configure --host=x86_64-w64-mingw32 --prefix=/cygdrive/d/ocaml ;
+          make ;
+          make install
+
+      - name: Display configuration and set up PATH
+        run: |
+          D:\ocaml\bin\ocamlc -config
+          echo "D:\ocaml\bin" >> ${env:GITHUB_PATH}
+
+      - name: Run the tests
+        shell: bash -e {0}
+        run: >-
+          make tests
