@@ -93,8 +93,9 @@ jobs:
           awk -f tools/ci/actions/canonicalize-dumpbin.awk runtime/amd64.dump runtime/amd64.dump > runtime/amd64.canonical ;
           git diff --no-index -- runtime/amd64*.canonical ;
           wc -l runtime/amd64*.dump runtime/amd64*.canonical ;
-          # ^ To make sure that the canonical files are reasonable cleaned-up
-          # versions of the raw dumpbins and not simply empty
+          # ^ The final wc is there to make sure that the canonical files are
+          # reasonable cleaned-up versions of the raw dumpbins and not simply
+          # empty
         if: matrix.x86_64
 
       - name: Run the test suite
