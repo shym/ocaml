@@ -23,11 +23,8 @@ let include_toplevel_directory =
   "-I " ^ Ocaml_directories.toplevel
 
 let c_includes =
-  let winpthreads = match Ocaml_directories.winpthreads_headers with
-    | None -> ""
-    | Some path -> " -ccopt -I" ^ path in
   let dir = Ocaml_directories.runtime in
-  "-ccopt -I" ^ dir ^ winpthreads
+  "-ccopt -I" ^ dir
 
 let runtime_variant_flags () = match Ocaml_files.runtime_variant() with
   | Ocaml_files.Normal -> ""
