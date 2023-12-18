@@ -23,6 +23,7 @@
 #include "caml/mlvalues.h"
 #include "caml/osdeps.h"
 #include "caml/startup_aux.h"
+#include "caml/platform.h"
 
 #include <fcntl.h>
 #include <stdatomic.h>
