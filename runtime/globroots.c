@@ -23,6 +23,7 @@
 #include "caml/globroots.h"
 #include "caml/skiplist.h"
 #include "caml/stack.h"
+#include "caml/platform.h"
 
 static caml_plat_mutex roots_mutex = CAML_PLAT_MUTEX_INITIALIZER;
 
