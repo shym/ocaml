@@ -23,6 +23,7 @@ jobs:
     strategy:
       matrix:
         x86_64: [true, false]
+        fail-fast: false
 
     steps:
       - name: Save pristine PATH
