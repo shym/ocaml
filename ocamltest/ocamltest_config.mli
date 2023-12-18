@@ -39,9 +39,6 @@ val cflags : string
 val ccomptype : string
 (** Type of C compiler (msvc, cc, etc.) *)
 
-val winpthreads_srcdir : string
-(** Subdirectory containing the sources of Winpthreads (empty if none) *)
-
 val diff : string
 (** Path to the diff tool *)
 
