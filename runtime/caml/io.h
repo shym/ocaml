@@ -23,7 +23,15 @@
 #include "camlatomic.h"
 #include "misc.h"
 #include "mlvalues.h"
+#ifndef _MSC_VER
 #include "platform.h"
+#else
+/* We avoid pulling in pthread.h (to hide its implementation details from the
+ * test suite) by inlining its implementation of mutexes, so this should be kept
+ * in sync */
+#include <stdint.h>
+typedef intptr_t caml_plat_mutex;
+#endif
 
 #ifndef IO_BUFFER_SIZE
 #define IO_BUFFER_SIZE 65536
