@@ -121,3 +121,4 @@ jobs:
             runtime/caml/version.h
             testsuite/_ocamltest/**/*.log
           name: results
+        if: always()
