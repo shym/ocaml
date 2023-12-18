@@ -72,21 +72,21 @@ static CAMLthread_local struct channel* last_channel_locked = NULL;
 
 CAMLexport void caml_channel_lock(struct channel *chan)
 {
-  if( caml_plat_try_lock(chan->mutex) ) {
+  if( caml_plat_try_lock(&chan->mutex) ) {
     last_channel_locked = chan;
     return;
   }
 
   /* If unsuccessful, block on mutex */
   caml_enter_blocking_section();
-  caml_plat_lock(chan->mutex);
+  caml_plat_lock(&chan->mutex);
   last_channel_locked = chan;
   caml_leave_blocking_section();
 }
 
 CAMLexport void caml_channel_unlock(struct channel *chan)
 {
-  caml_plat_unlock(chan->mutex);
+  caml_plat_unlock(&chan->mutex);
   last_channel_locked = NULL;
 }
 
@@ -163,18 +163,15 @@ static void unlink_channel(struct channel *channel)
 CAMLexport struct channel * caml_open_descriptor_in(int fd)
 {
   struct channel * channel;
-  pthread_mutex_t * mutex;
 
   channel = (struct channel *) caml_stat_alloc(sizeof(struct channel));
-  mutex = caml_stat_alloc(sizeof(pthread_mutex_t));
-  caml_plat_mutex_init(mutex);
   channel->fd = fd;
   caml_enter_blocking_section_no_pending();
   channel->offset = lseek(fd, 0, SEEK_CUR);
   caml_leave_blocking_section();
   channel->curr = channel->max = channel->buff;
   channel->end = channel->buff + IO_BUFFER_SIZE;
-  channel->mutex = mutex;
+  caml_plat_mutex_init(&channel->mutex);
   channel->refcount = 0;
   channel->prev = NULL;
   channel->next = NULL;
@@ -196,8 +193,7 @@ CAMLexport void caml_close_channel(struct channel *channel)
 {
   CAMLassert((channel->flags & CHANNEL_FLAG_MANAGED_BY_GC) == 0);
   close(channel->fd);
-  caml_plat_mutex_free(channel->mutex);
-  caml_stat_free(channel->mutex);
+  caml_plat_mutex_free(&channel->mutex);
   caml_stat_free(channel->name);
   caml_stat_free(channel);
 }
@@ -562,8 +558,7 @@ void caml_finalize_channel(value vchan)
   }
   unlink_channel(chan);
   caml_plat_unlock (&caml_all_opened_channels_mutex);
-  caml_plat_mutex_free(chan->mutex);
-  caml_stat_free(chan->mutex);
+  caml_plat_mutex_free(&chan->mutex);
   caml_stat_free(chan->name);
   caml_stat_free(chan);
 }

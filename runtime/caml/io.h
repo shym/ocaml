@@ -35,13 +35,21 @@ typedef __int64 file_offset;
 typedef off_t file_offset;
 #endif
 
+#ifdef _MSC_VER
+#include <stdint.h>
+typedef intptr_t caml_plat_mutex;
+#else
+#include <pthread.h>
+typedef pthread_mutex_t caml_plat_mutex;
+#endif
+
 struct channel {
   int fd;                       /* Unix file descriptor */
   file_offset offset;           /* Absolute position of fd in the file */
   char * end;                   /* Physical end of the buffer */
   char * curr;                  /* Current position in the buffer */
   char * max;                   /* Logical end of the buffer (for input) */
-  void * mutex;                 /* Mutex protecting buffer */
+  caml_plat_mutex mutex;        /* Mutex protecting buffer */
   struct channel * next, * prev;/* Double chaining of channels (flush_all) */
   uintnat refcount;             /* Number of custom blocks owning the channel */
   int flags;                    /* Bitfield */
