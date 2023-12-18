@@ -21,6 +21,7 @@ jobs:
     timeout-minutes: 60
 
     strategy:
+      fail-fast: false
       matrix:
         x86_64: [true, false]
 
