@@ -13975,9 +13975,11 @@ case $ocaml_cv_cc_vendor in #(
     # No C11 atomics support
     as_fn_error 69 "This version of MSVC is too old. Please use Visual Studio version 17.8 or above." "$LINENO" 5 ;; #(
   msvc-*) :
-    common_cflags="-nologo -O2 -Gy- -MD -experimental:c11atomics -std:c11 $cc_warnings"
+    common_cflags="-nologo -O2 -Gy- -MD $cc_warnings"
     common_cppflags="-D_CRT_SECURE_NO_DEPRECATE"
     internal_cppflags='-DUNICODE -D_UNICODE'
+    internal_cflags='-experimental:c11atomics -std:c11'
+    CFLAGS="$CFLAGS -experimental:c11atomics -std:c11"
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler supports -d2VolatileMetadata-" >&5
 printf %s "checking whether the C compiler supports -d2VolatileMetadata-... " >&6; }

@@ -832,9 +832,10 @@ AS_CASE([$ocaml_cv_cc_vendor],
     [AC_MSG_ERROR(m4_normalize([This version of MSVC is too old.
     Please use Visual Studio version 17.8 or above.]), 69)],
   [msvc-*],
-    [common_cflags="-nologo -O2 -Gy- -MD -experimental:c11atomics -std:c11 $cc_warnings"
+    [common_cflags="-nologo -O2 -Gy- -MD $cc_warnings"
     common_cppflags="-D_CRT_SECURE_NO_DEPRECATE"
     internal_cppflags='-DUNICODE -D_UNICODE'
+    CFLAGS="$CFLAGS -experimental:c11atomics -std:c11"
     OCAML_CL_HAS_VOLATILE_METADATA
     AS_IF([test "x$cl_has_volatile_metadata" = "xtrue"],
           [internal_cflags="$internal_cflags -d2VolatileMetadata-"])
