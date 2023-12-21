@@ -864,7 +864,6 @@ ocamlc_cppflags
 ocamlc_cflags
 native_ldflags
 cclibs
-oc_exe_ldflags
 oc_dll_ldflags
 oc_ldflags
 oc_cppflags
