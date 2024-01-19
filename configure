@@ -14542,7 +14542,7 @@ if test "x$ac_cv_header_pthread_h" = xyes
 then :
 
 else $as_nop
-  as_fn_error $? "cannot find pthread.h in winpthreads" "$LINENO" 5
+  as_fn_error $? "cannot find or use pthread.h from winpthreads" "$LINENO" 5
 fi
 
 
