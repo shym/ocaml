@@ -14533,9 +14533,9 @@ printf "%s\n" "$winpthreads_source_dir$winpthreadmsg" >&6; }
   touch confdefs.h
 
 
-  if test -n "$winpthreads_source_dir/include"
+  if test -n "$iwinpthreadsdir"
 then :
-  CPPFLAGS="-I $winpthreads_source_dir/include $CPPFLAGS"
+  CPPFLAGS="-I $iwinpthreadsdir $CPPFLAGS"
 fi
   ac_fn_c_check_header_compile "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
 if test "x$ac_cv_header_pthread_h" = xyes

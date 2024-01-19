@@ -1065,7 +1065,7 @@ AS_IF([test x"$with_winpthreads_msvc" = "xno"],
     AS_IF([test x"$winpthreads_source_dir" = 'x'],
       [AC_MSG_RESULT([no])],
       [AC_MSG_RESULT([$winpthreads_source_dir$winpthreadmsg])
-      OCAML_TEST_WINPTHREADS_PTHREAD_H([$winpthreads_source_dir/include])
+      OCAML_TEST_WINPTHREADS_PTHREAD_H([$iwinpthreadsdir])
       internal_cppflags="$internal_cppflags -I$iwinpthreadsdir"])],
     [AS_IF([test x"$with_winpthreads_msvc" != 'x'],
       [AC_MSG_RESULT([requested but not supported])
