@@ -683,13 +683,6 @@ git branch -d tmp
 git push origin master
 ----
 
-Finally you can update the `winpthreads` submodule, by running, in the
-directory containing the `ocaml` repository:
-
-----
-git -C winpthreads fetch
-git -C winpthreads checkout origin/master
-git add winpthreads
-----
+and then go on updating the `winpthreads` submodule in the `ocaml` repository.
 
 Happy Hacking!
