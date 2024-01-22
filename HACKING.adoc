@@ -667,20 +667,26 @@ port. Upstream bundles it along with all the MinGW libraries so our
 `winpthreads` submodule points to `git subtree` repository rather than
 upstream directly.
 
-To update the `master` branch on `ocaml/winpthreads` with new commits
-from upstream `master` branch, you can do:
+To recreate the `winpthreads` repository from upstream, you can do:
 
 ----
-git clone https://github.com/ocaml/winpthreads.git
+git clone -o upstream https://git.code.sf.net/p/mingw-w64/mingw-w64 winpthreads
 cd winpthreads
-git remote add upstream https://git.code.sf.net/p/mingw-w64/mingw-w64
+git checkout upstream/master
+git branch -D master
+git subtree -P mingw-w64-libraries/winpthreads split -b master
+----
+
+As subtree splitting is deterministic, repeating these operations later will
+allow to update `master`, for instance by:
+
+----
 git fetch upstream
 git checkout upstream/master
 git subtree -P mingw-w64-libraries/winpthreads split -b tmp
 git checkout master
 git merge --ff-only tmp
 git branch -d tmp
-git push origin master
 ----
 
 and then go on updating the `winpthreads` submodule in the `ocaml` repository.
