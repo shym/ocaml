@@ -1,0 +1,31 @@
+name: Generate assets on releases
+
+on:
+  release:
+    types:
+      - released
+
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Generate archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          git archive --prefix="ocaml-$tag/" @ >ocaml.tar
+          git -C winpthreads archive --prefix="ocaml-$tag/winpthreads/" @ >w.tar
+          cp ocaml.tar ocaml-winpthreads.tar
+          tar -A -f ocaml-winpthreads.tar w.tar
+          xz ocaml.tar
+          osha="$(sha256sum ocaml.tar.xz | awk '{print $1}')"
+          xz ocaml-winpthreads.tar
+          owsha="$(sha256sum ocaml-winpthreads.tar.xz | awk '{print $1}')"
+          gh release upload "$tag" "ocaml.tar.xz#ocaml.tar.xz ($osha)"
+          gh release upload "$tag" "ocaml-winpthreads.tar.xz#ocaml-winpthreads.tar.xz ($owsha)"
