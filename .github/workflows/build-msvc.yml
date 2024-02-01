@@ -6,10 +6,6 @@ concurrency:
 
 on:
   push:
-    branches:
-      - '4.**'
-      - '5.**'
-      - 'trunk'
   pull_request:
 
 jobs:
@@ -74,7 +70,7 @@ jobs:
         run: >-
           eval $(tools/msvs-promote-path) ;
           ./configure --host=$HOST ;
-          make ;
+          make V=1 ;
           runtime/ocamlrun ocamlc -config ;
 
       - name: Assemble backend with MinGW GASM and compare
