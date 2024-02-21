@@ -65,11 +65,13 @@ LIBTOOL = $(TOP_BUILDDIR)/libtool
 ### Which C compiler to use
 TOOLPREF=@ac_tool_prefix@
 CC=@CC@
+CC_FOR_BUILD=@CC_FOR_BUILD@
 
 CC_HAS_DEBUG_PREFIX_MAP=@cc_has_debug_prefix_map@
 AS_HAS_DEBUG_PREFIX_MAP=@as_has_debug_prefix_map@
 
 LDFLAGS?=@LDFLAGS@
+LDFLAGS_FOR_BUILD=@LDFLAGS_FOR_BUILD@
 
 ### How to invoke the C preprocessor through the C compiler
 CPP=@CPP@
@@ -160,7 +162,9 @@ UNIX_OR_WIN32=@unix_or_win32@
 INSTALL_SOURCE_ARTIFACTS=@install_source_artifacts@
 
 CFLAGS=@CFLAGS@
+CFLAGS_FOR_BUILD=@CFLAGS_FOR_BUILD@
 CPPFLAGS=@CPPFLAGS@
+CPPFLAGS_FOR_BUILD=@CPPFLAGS_FOR_BUILD@
 BYTECODE_CFLAGS=@bytecode_cflags@
 
 BYTECODE_CPPFLAGS=@bytecode_cppflags@
