@@ -784,8 +784,14 @@ dnl nefarious single quotes which may appear in any of the strings.
 
 AS_IF(
   [test x"$host" = x"$target"],
-    [cross_compiler=false],
-    [cross_compiler=true])
+    [cross_compiler=false
+    CC_FOR_BUILD='$(CC)'
+    CFLAGS_FOR_BUILD='$(CFLAGS)'
+    CPPFLAGS_FOR_BUILD='$(CPPFLAGS)'
+    LDFLAGS_FOR_BUILD='$(LDFLAGS)'],
+    [cross_compiler=true
+    AC_MSG_NOTICE([detecting the C toolchain for build])
+    AX_PROG_CC_FOR_BUILD])
 
 # Checks for programs
 
