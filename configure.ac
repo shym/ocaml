@@ -597,7 +597,7 @@ AS_IF([test x"$enable_ocamldoc" = "xno"],
 # Initialization of libtool
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
-AC_CHECK_TOOLS([LD],[ld link])
+AC_CHECK_TARGET_TOOLS([LD],[ld link])
 # libtool expects host_os=mingw for native Windows
 # Also, it has been observed that, on some platforms (e.g. msvc) LT_INIT
 # alters the CFLAGS variable, so we save its value before calling the macro
@@ -1027,7 +1027,7 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$host],
 
 mkexe_cmd_exp="$CC"
 
-AS_CASE([$ocaml_cc_vendor,$host],
+AS_CASE([$ocaml_cc_vendor,$target],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
@@ -1045,7 +1045,7 @@ AS_CASE([$ocaml_cc_vendor,$host],
     )
     ostype="Cygwin"],
   [*,*-*-mingw32*],
-    [AS_CASE([$host],
+    [AS_CASE([$target],
       [i686-*-*], [oc_dll_ldflags="-static-libgcc"])
     ostype="Win32"
     toolchain="mingw"
@@ -1342,7 +1342,7 @@ system=unknown
 # preserving $arch = 'none' <=> $system = 'unknown'
 has_native_backend=no
 native_ldflags=""
-AS_CASE([$host],
+AS_CASE([$target],
   [[i[3456]86-*-linux*]],
     [arch=i386; system=linux],
   [[i[3456]86-*-freebsd*]],
@@ -1479,7 +1479,7 @@ AS_IF([$natdynlink],
 
 AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
 
-AC_CHECK_TOOL([DIRECT_LD],[ld])
+AC_CHECK_TARGET_TOOL([DIRECT_LD],[ld])
 AS_IF([test -z "$PARTIALLD"],
   [AS_CASE(["$host,$ocaml_cc_vendor"],
     [x86_64-*-darwin*,gcc-*], [PACKLD_FLAGS=' -arch x86_64'],
