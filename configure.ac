@@ -288,6 +288,14 @@ AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
+# Override cross_compiling and ac_tool_prefix variables since the C toolchain is
+# used to generate target code when building a cross compiler
+AS_IF([test x"$build" = x"$target"],
+  [cross_compiling=no],
+  [cross_compiling=yes])
+AS_IF([test -n "$target_alias"],
+  [ac_tool_prefix=$target_alias-])
+
 # Ensure that AC_CONFIG_LINKS will either create symlinks which are compatible
 # with native Windows (i.e. NTFS symlinks, not WSL or Cygwin-emulated ones) or
 # use its fallback mechanisms. Native Windows versions of ocamlc/ocamlopt cannot
@@ -594,12 +602,22 @@ AC_CHECK_TOOLS([LD],[ld link])
 # Also, it has been observed that, on some platforms (e.g. msvc) LT_INIT
 # alters the CFLAGS variable, so we save its value before calling the macro
 # and restore it after the call
+pushdef([host], target)dnl
+pushdef([host_alias], target_alias)dnl
+pushdef([host_cpu], target_cpu)dnl
+pushdef([host_vendor], target_vendor)dnl
+pushdef([host_os], target_os)dnl
 old_host_os=$host_os
 AS_IF([test x"$host_os" = "xwindows"],[host_os=mingw])
 saved_CFLAGS="$CFLAGS"
 LT_INIT
 CFLAGS="$saved_CFLAGS"
 host_os=$old_host_os
+popdef([host_os])dnl
+popdef([host_vendor])dnl
+popdef([host_cpu])dnl
+popdef([host_alias])dnl
+popdef([host])dnl
 
 AS_CASE([$host],
   [sparc-sun-solaris*],
