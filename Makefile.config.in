@@ -185,6 +185,7 @@ OCAMLOPT_CFLAGS=@ocamlc_cflags@
 OCAMLOPT_CPPFLAGS=@ocamlc_cppflags@
 NATIVECCLIBS=@cclibs@
 SYSTHREAD_SUPPORT=@systhread_support@
+STRIP=@STRIP@
 PACKLD=@PACKLD@$(EMPTY)
 CCOMPTYPE=@ccomptype@
 TOOLCHAIN=@toolchain@
