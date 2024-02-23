@@ -2732,6 +2732,8 @@ endif
 
 include .depend
 
+include Makefile.cross
+
 Makefile.config Makefile.build_config: config.status
 config.status:
 	@echo "Please refer to the installation instructions:"
