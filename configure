@@ -750,7 +750,6 @@ DSYMUTIL
 MANIFEST_TOOL
 AWK
 RANLIB
-STRIP
 ac_ct_AR
 DLLTOOL
 OBJDUMP
@@ -795,6 +794,7 @@ QS
 ocaml_libdir
 ocaml_bindir
 compute_deps
+STRIP
 build_libraries_manpages
 PACKLD
 mkexe_ldflags_exp
@@ -3447,6 +3447,7 @@ LINEAR_MAGIC_NUMBER=Caml1999L034
 
 
  # TODO: rename this variable
+
 
 
 
