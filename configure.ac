@@ -287,7 +287,24 @@ AC_CONFIG_COMMANDS_PRE(OCAML_QUOTED_STRING_ID)
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
+# Allow "ocaml" as target OS for freestanding compiler by temporarily rewriting
+# the target OS to "none" to generate the canonical target
+real_target_alias="$target_alias"
+AS_CASE([$target_alias],
+  [*-*-*-ocaml],
+    [ac_save_IFS=$IFS
+    IFS='-'
+    set x $target_alias
+    target_alias="$2-$3-none"
+    IFS=$ac_save_IFS],
+  [*-*-ocaml],
+    [ac_save_IFS=$IFS
+    IFS='-'
+    set x $target_alias
+    target_alias="$2-none"
+    IFS=$ac_save_IFS])
 AC_CANONICAL_TARGET
+target_alias="$real_target_alias"
 
 # Override cross_compiling and ac_tool_prefix variables since the C toolchain is
 # used to generate target code when building a cross compiler
