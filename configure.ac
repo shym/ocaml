@@ -1458,7 +1458,11 @@ AS_CASE([$target],
   [x86_64-*-cygwin*],
     [has_native_backend=yes; arch=amd64; system=cygwin],
   [riscv64-*-linux*],
-    [has_native_backend=yes; arch=riscv; model=riscv64; system=linux]
+    [has_native_backend=yes; arch=riscv; model=riscv64; system=linux],
+  [x86_64-*-none],
+    [has_native_backend=yes; arch=amd64; system=none],
+  [aarch64-*-none],
+    [has_native_backend=yes; arch=arm64; system=none]
 )
 
 AS_CASE([$arch],
