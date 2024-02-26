@@ -3646,6 +3646,25 @@ IFS=$ac_save_IFS
 case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
+# Allow "ocaml" as target OS for freestanding compiler by temporarily rewriting
+# the target OS to "none" to generate the canonical target
+real_target_alias="$target_alias"
+case $target_alias in #(
+  *-*-*-ocaml) :
+    ac_save_IFS=$IFS
+    IFS='-'
+    set x $target_alias
+    target_alias="$2-$3-none"
+    IFS=$ac_save_IFS ;; #(
+  *-*-ocaml) :
+    ac_save_IFS=$IFS
+    IFS='-'
+    set x $target_alias
+    target_alias="$2-none"
+    IFS=$ac_save_IFS ;; #(
+  *) :
+     ;;
+esac
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking target system type" >&5
 printf %s "checking target system type... " >&6; }
 if test ${ac_cv_target+y}
@@ -3686,6 +3705,7 @@ test -n "$target_alias" &&
   test "$program_prefix$program_suffix$program_transform_name" = \
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
+target_alias="$real_target_alias"
 
 # Ensure that AC_CONFIG_LINKS will either create symlinks which are compatible
 # with native Windows (i.e. NTFS symlinks, not WSL or Cygwin-emulated ones) or
