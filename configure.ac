@@ -1091,7 +1091,9 @@ AS_CASE([$ocaml_cc_vendor,$host],
     [oc_ldflags='-brtl -bexpfull'
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
   [gcc-*,powerpc-*-linux*],
-    [oc_ldflags="-mbss-plt"])
+    [oc_ldflags="-mbss-plt"],
+  [*,*-*-none|*,*-*-elf*],
+    [ostype="None"])
 
 # Winpthreads emulation library for the MSVC port
 AC_MSG_CHECKING([for winpthreads sources])
