@@ -15687,6 +15687,8 @@ esac
  ;; #(
   gcc-*,powerpc-*-linux*) :
     oc_ldflags="-mbss-plt" ;; #(
+  *,*-*-none|*,*-*-elf*) :
+    ostype="None" ;; #(
   *) :
      ;;
 esac
