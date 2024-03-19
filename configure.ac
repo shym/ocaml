@@ -826,6 +826,13 @@ AS_IF(
     CPPFLAGS_FOR_BUILD='$(CPPFLAGS)'
     LDFLAGS_FOR_BUILD='$(LDFLAGS)'],
     [cross_compiler=true
+    # We require a non-cross-compiler of the same version
+    AC_MSG_CHECKING([the version of the installed OCaml compiler])
+    already_installed_version=`ocamlc -vnum`
+    AS_IF([test x"AC_PACKAGE_VERSION" = x"$already_installed_version"],
+          [AC_MSG_RESULT([compatible (AC_PACKAGE_VERSION)])],
+          [AC_MSG_ERROR(m4_normalize([incompatible (AC_PACKAGE_VERSION vs
+             $already_installed_version)]))])
     AC_MSG_NOTICE([detecting the C toolchain for build])
     AX_PROG_CC_FOR_BUILD])
 
