@@ -19783,9 +19783,8 @@ fi
 fi
 
 
-if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
-set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
+# Extract the first word of "$target_alias-pkg-config", so it can be a program name with args.
+set dummy $target_alias-pkg-config; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
 if test ${ac_cv_path_PKG_CONFIG+y}
@@ -19829,10 +19828,10 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-fi
 if test -z "$ac_cv_path_PKG_CONFIG"; then
-  ac_pt_PKG_CONFIG=$PKG_CONFIG
-  # Extract the first word of "pkg-config", so it can be a program name with args.
+  if test "$build" = "$target"; then
+    ac_pt_PKG_CONFIG=$PKG_CONFIG
+    # Extract the first word of "pkg-config", so it can be a program name with args.
 set dummy pkg-config; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -19864,6 +19863,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_ac_pt_PKG_CONFIG" && ac_cv_path_ac_pt_PKG_CONFIG="false"
   ;;
 esac
 fi
@@ -19876,16 +19876,9 @@ else
 printf "%s\n" "no" >&6; }
 fi
 
-  if test "x$ac_pt_PKG_CONFIG" = x; then
-    PKG_CONFIG="false"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-printf "%s\n" "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
     PKG_CONFIG=$ac_pt_PKG_CONFIG
+  else
+    PKG_CONFIG="false"
   fi
 else
   PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
