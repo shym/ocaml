@@ -2261,7 +2261,7 @@ AC_CHECK_HEADER([spawn.h],
   [AC_CHECK_FUNC([posix_spawn],
     [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN])])])])
 
-AC_PATH_TOOL([PKG_CONFIG], [pkg-config], [false])
+AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config], [false])
 
 ## ZSTD compression library
 
