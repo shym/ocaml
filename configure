@@ -14009,32 +14009,46 @@ case $ocaml_cc_vendor in #(
     internal_cppflags='-DUNICODE -D_UNICODE'
     internal_cflags="$cc_warnings -experimental:c11atomics -std:c11"
     CFLAGS="$CFLAGS -experimental:c11atomics -std:c11"
+    as_CACHEVAR=`printf "%s\n" "ax_cv_check_cflags_$warn_error_flag_-d2VolatileMetadata-" | $as_tr_sh`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -d2VolatileMetadata-" >&5
+printf %s "checking whether C compiler accepts -d2VolatileMetadata-... " >&6; }
+if eval test \${$as_CACHEVAR+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler supports -d2VolatileMetadata-" >&5
-printf %s "checking whether the C compiler supports -d2VolatileMetadata-... " >&6; }
-  saved_CFLAGS="$CFLAGS"
-  CFLAGS="-d2VolatileMetadata- $CFLAGS"
+  ax_check_save_flags=$CFLAGS
+  CFLAGS="$CFLAGS $warn_error_flag -d2VolatileMetadata-"
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-int main() { return 0; }
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  cl_has_volatile_metadata=true
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
+  eval "$as_CACHEVAR=yes"
 else $as_nop
-  cl_has_volatile_metadata=false
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+  eval "$as_CACHEVAR=no"
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-  CFLAGS="$saved_CFLAGS"
-
-    if test "x$cl_has_volatile_metadata" = "xtrue"
+  CFLAGS=$ax_check_save_flags
+fi
+eval ac_res=\$$as_CACHEVAR
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+if eval test \"x\$"$as_CACHEVAR"\" = x"yes"
 then :
   internal_cflags="$internal_cflags -d2VolatileMetadata-"
+else $as_nop
+  :
 fi
+
     internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE="
     internal_cppflags="${internal_cppflags}\$(WINDOWS_UNICODE)" ;; #(
   xlc-*) :
