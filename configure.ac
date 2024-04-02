@@ -942,14 +942,12 @@ AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
       [dnl When bootstrapping from the git submodule (flexdll directory), just
        dnl use that, however if another directory has been specified with
        dnl --with-flexdll=<path> then copy the contents of <path> to
-       dnl flexdll-sources. This allows us to guarantee that flexdll is always
-       dnl built at one directory level below the root, so we can specify
-       dnl ROOTDIR=..
+       dnl flexdll-sources.
       AS_IF([m4_normalize([test x"$with_flexdll" = 'x'
                             || test x"$with_flexdll" = 'xflexdll'])],
         [AS_IF([test -f 'flexdll/flexdll.h'],
           [flexdll_source_dir=flexdll
-          iflexdir='$(ROOTDIR)/flexdll'
+          iflexdir="$ocamlsrcdir\\flexdll"
           with_flexdll="$iflexdir"],
           [AS_IF([test x"$with_flexdll" != 'x'],
             [AC_MSG_RESULT([requested but not available])
@@ -959,7 +957,7 @@ AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
           [mkdir -p flexdll-sources
           cp -r "$with_flexdll"/* flexdll-sources/
           flexdll_source_dir='flexdll-sources'
-          iflexdir='$(ROOTDIR)/flexdll-sources'
+          iflexdir="$ocamlsrcdir\\flexdll-sources"
           flexmsg=" (from $with_flexdll)"],
           [AC_MSG_RESULT([requested but not available])
           AC_MSG_ERROR([exiting])])])
