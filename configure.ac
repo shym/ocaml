@@ -862,9 +862,8 @@ AS_CASE([$ocaml_cc_vendor],
   [msvc-*],
     [common_cflags='-nologo -O2 -Gy- -MD'
     common_cppflags="-D_CRT_SECURE_NO_DEPRECATE"
+    internal_cflags="$cc_warnings"
     internal_cppflags='-DUNICODE -D_UNICODE'
-    internal_cflags="$cc_warnings -experimental:c11atomics -std:c11"
-    CFLAGS="$CFLAGS -experimental:c11atomics -std:c11"
     AX_CHECK_COMPILE_FLAG([-d2VolatileMetadata-],
       [internal_cflags="$internal_cflags -d2VolatileMetadata-"], [],
       [$warn_error_flag])
@@ -1212,7 +1211,18 @@ AS_IF([! $arch64],
 
 # Support for C11 atomic types
 
-OCAML_CC_SUPPORTS_ATOMIC([$cclibs])
+AS_CASE([$ocaml_cc_vendor],
+  [msvc-*],
+    [OCAML_CC_SUPPORTS_ATOMIC
+     AS_IF([! $cc_supports_atomic],
+       [OCAML_CC_SUPPORTS_ATOMIC([-std:c11])
+        AS_IF([$cc_supports_atomic],
+          [common_cflags="$common_cflags -std:c11"],
+          [OCAML_CC_SUPPORTS_ATOMIC([-std:c11 -experimental:c11atomics])
+           AS_IF([$cc_supports_atomic],
+             [common_cflags="$common_cflags -std:c11 -experimental:c11atomics"])
+    ])])],
+  [OCAML_CC_SUPPORTS_ATOMIC([], [$cclibs])])
 AS_IF([! $cc_supports_atomic],
   [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
 

@@ -548,9 +548,13 @@ AC_DEFUN([OCAML_QUOTED_STRING_ID], [
 ])
 
 AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
-  AC_MSG_CHECKING([whether the C compiler supports _Atomic types])
-  saved_LIBS="$LIBS"
-  LIBS="$LIBS $1"
+  AC_MSG_CHECKING([for $CC option to support _Atomic types])
+  OCAML_CC_SAVE_VARIABLES
+
+  msg_result='none needed'
+  AS_IF([test -n "$1"],[CFLAGS="$CFLAGS $1"; msg_result="$1"])
+  AS_IF([test -n "$2"],[LIBS="$LIBS $2"; msg_result="$msg_result $2"])
+
   AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <stdatomic.h>
@@ -565,8 +569,9 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
     }
     ]])],
   [cc_supports_atomic=true
-   AC_MSG_RESULT([yes])],
+   AC_MSG_RESULT([$msg_result])],
   [cc_supports_atomic=false
-   AC_MSG_RESULT([no])])
-  LIBS="$saved_LIBS"
+   AC_MSG_RESULT([unsupported])])
+
+  OCAML_CC_RESTORE_VARIABLES
 ])
