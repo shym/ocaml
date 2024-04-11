@@ -243,6 +243,7 @@ AC_SUBST([mkdll_ldflags_exp])
 AC_SUBST([mkexe_ldflags_exp])
 AC_SUBST([PACKLD])
 AC_SUBST([build_libraries_manpages])
+AC_SUBST([STRIP])
 AC_SUBST([compute_deps])
 AC_SUBST([ocaml_bindir])
 AC_SUBST([ocaml_libdir])
@@ -286,7 +287,32 @@ AC_CONFIG_COMMANDS_PRE(OCAML_QUOTED_STRING_ID)
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
+# Allow "ocaml" as target OS for freestanding compiler by temporarily rewriting
+# the target OS to "none" to generate the canonical target
+real_target_alias="$target_alias"
+AS_CASE([$target_alias],
+  [*-*-*-ocaml],
+    [ac_save_IFS=$IFS
+    IFS='-'
+    set x $target_alias
+    target_alias="$2-$3-none"
+    IFS=$ac_save_IFS],
+  [*-*-ocaml],
+    [ac_save_IFS=$IFS
+    IFS='-'
+    set x $target_alias
+    target_alias="$2-none"
+    IFS=$ac_save_IFS])
 AC_CANONICAL_TARGET
+target_alias="$real_target_alias"
+
+# Override cross_compiling and ac_tool_prefix variables since the C toolchain is
+# used to generate target code when building a cross compiler
+AS_IF([test x"$build" = x"$target"],
+  [cross_compiling=no],
+  [cross_compiling=yes])
+AS_IF([test -n "$target_alias"],
+  [ac_tool_prefix=$target_alias-])
 
 # Ensure that AC_CONFIG_LINKS will either create symlinks which are compatible
 # with native Windows (i.e. NTFS symlinks, not WSL or Cygwin-emulated ones) or
@@ -589,17 +615,27 @@ AS_IF([test x"$enable_ocamldoc" = "xno"],
 # Initialization of libtool
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
-AC_CHECK_TOOLS([LD],[ld link])
+AC_CHECK_TARGET_TOOLS([LD],[ld link])
 # libtool expects host_os=mingw for native Windows
 # Also, it has been observed that, on some platforms (e.g. msvc) LT_INIT
 # alters the CFLAGS variable, so we save its value before calling the macro
 # and restore it after the call
+pushdef([host], target)dnl
+pushdef([host_alias], target_alias)dnl
+pushdef([host_cpu], target_cpu)dnl
+pushdef([host_vendor], target_vendor)dnl
+pushdef([host_os], target_os)dnl
 old_host_os=$host_os
 AS_IF([test x"$host_os" = "xwindows"],[host_os=mingw])
 saved_CFLAGS="$CFLAGS"
 LT_INIT
 CFLAGS="$saved_CFLAGS"
 host_os=$old_host_os
+popdef([host_os])dnl
+popdef([host_vendor])dnl
+popdef([host_cpu])dnl
+popdef([host_alias])dnl
+popdef([host])dnl
 
 AS_CASE([$host],
   [sparc-sun-solaris*],
@@ -784,8 +820,21 @@ dnl nefarious single quotes which may appear in any of the strings.
 
 AS_IF(
   [test x"$host" = x"$target"],
-    [cross_compiler=false],
-    [cross_compiler=true])
+    [cross_compiler=false
+    CC_FOR_BUILD='$(CC)'
+    CFLAGS_FOR_BUILD='$(CFLAGS)'
+    CPPFLAGS_FOR_BUILD='$(CPPFLAGS)'
+    LDFLAGS_FOR_BUILD='$(LDFLAGS)'],
+    [cross_compiler=true
+    # We require a non-cross-compiler of the same version
+    AC_MSG_CHECKING([the version of the installed OCaml compiler])
+    already_installed_version=`ocamlc -vnum`
+    AS_IF([test x"AC_PACKAGE_VERSION" = x"$already_installed_version"],
+          [AC_MSG_RESULT([compatible (AC_PACKAGE_VERSION)])],
+          [AC_MSG_ERROR(m4_normalize([incompatible (AC_PACKAGE_VERSION vs
+             $already_installed_version)]))])
+    AC_MSG_NOTICE([detecting the C toolchain for build])
+    AX_PROG_CC_FOR_BUILD])
 
 # Checks for programs
 
@@ -1003,11 +1052,11 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$host],
 
 mkexe_cmd_exp="$CC"
 
-AS_CASE([$ocaml_cc_vendor,$host],
+AS_CASE([$ocaml_cc_vendor,$target],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
-  [*,aarch64-*-darwin*|arm64-*-darwin*],
+  [*,aarch64-*-darwin*|*,arm64-*-darwin*],
     AC_DEFINE([HAS_ARCH_CODE32], [1]),
   [*,*-*-cygwin*],
     [common_cppflags="$common_cppflags -U_WIN32"
@@ -1021,7 +1070,7 @@ AS_CASE([$ocaml_cc_vendor,$host],
     )
     ostype="Cygwin"],
   [*,*-*-mingw32*],
-    [AS_CASE([$host],
+    [AS_CASE([$target],
       [i686-*-*], [oc_dll_ldflags="-static-libgcc"])
     ostype="Win32"
     toolchain="mingw"
@@ -1049,7 +1098,9 @@ AS_CASE([$ocaml_cc_vendor,$host],
     [oc_ldflags='-brtl -bexpfull'
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
   [gcc-*,powerpc-*-linux*],
-    [oc_ldflags="-mbss-plt"])
+    [oc_ldflags="-mbss-plt"],
+  [*,*-*-none|*,*-*-elf],
+    [ostype="None"])
 
 ## Program to use to install files
 AC_PROG_INSTALL
@@ -1318,7 +1369,7 @@ system=unknown
 # preserving $arch = 'none' <=> $system = 'unknown'
 has_native_backend=no
 native_ldflags=""
-AS_CASE([$host],
+AS_CASE([$target],
   [[i[3456]86-*-linux*]],
     [arch=i386; system=linux],
   [[i[3456]86-*-freebsd*]],
@@ -1415,7 +1466,11 @@ AS_CASE([$host],
   [x86_64-*-cygwin*],
     [has_native_backend=yes; arch=amd64; system=cygwin],
   [riscv64-*-linux*],
-    [has_native_backend=yes; arch=riscv; model=riscv64; system=linux]
+    [has_native_backend=yes; arch=riscv; model=riscv64; system=linux],
+  [x86_64-*-none],
+    [has_native_backend=yes; arch=amd64; system=none],
+  [aarch64-*-none],
+    [has_native_backend=yes; arch=arm64; system=none]
 )
 
 AS_CASE([$arch],
@@ -1455,7 +1510,7 @@ AS_IF([$natdynlink],
 
 AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
 
-AC_CHECK_TOOL([DIRECT_LD],[ld])
+AC_CHECK_TARGET_TOOL([DIRECT_LD],[ld])
 AS_IF([test -z "$PARTIALLD"],
   [AS_CASE(["$host,$ocaml_cc_vendor"],
     [x86_64-*-darwin*,gcc-*], [PACKLD_FLAGS=' -arch x86_64'],
@@ -2207,7 +2262,7 @@ AC_CHECK_HEADER([spawn.h],
   [AC_CHECK_FUNC([posix_spawn],
     [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN])])])])
 
-AC_PATH_TOOL([PKG_CONFIG], [pkg-config], [false])
+AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config], [false])
 
 ## ZSTD compression library
 

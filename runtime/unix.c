@@ -21,6 +21,7 @@
            /* Helps finding RTLD_DEFAULT in glibc */
            /* also secure_getenv */
 
+#include "caml/config.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,8 +33,6 @@
 #endif
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <errno.h>
-#include "caml/config.h"
 #if defined(SUPPORT_DYNAMIC_LINKING) && !defined(BUILDING_LIBCAMLRUNS)
 #define WITH_DYNAMIC_LINKING
 #ifdef __CYGWIN__
@@ -47,7 +46,7 @@
 #endif
 #ifdef HAS_POSIX_MONOTONIC_CLOCK
 #include <time.h>
-#elif HAS_CLOCK_GETTIME_NSEC_NP
+#elif defined(HAS_CLOCK_GETTIME_NSEC_NP)
 #include <time.h>
 #endif
 #ifdef HAS_DIRENT
