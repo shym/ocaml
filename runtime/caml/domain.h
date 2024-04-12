@@ -31,11 +31,7 @@ extern "C" {
 
 /* The runtime currently has a hard limit on the number of domains.
    This hard limit may go away in the future. */
-#ifdef ARCH_SIXTYFOUR
-#define Max_domains 128
-#else
-#define Max_domains 16
-#endif
+#define Max_domains 1
 
 /* is the minor heap full or an external interrupt has been triggered */
 Caml_inline int caml_check_gc_interrupt(caml_domain_state * dom_st)
