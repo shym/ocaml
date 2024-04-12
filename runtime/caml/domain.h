@@ -24,15 +24,11 @@
 #include "mlvalues.h"
 #include "domain_state.h"
 
-#ifdef ARCH_SIXTYFOUR
-#define Max_domains_def 128
-#else
-#define Max_domains_def 16
-#endif
+#define Max_domains_def 1
 
 /* Upper limit for the number of domains. Chosen to be arbitrarily large. Used
  * for sanity checking [max_domains] value in OCAMLRUNPARAM. */
-#define Max_domains_max 4096
+#define Max_domains_max 1
 
 /* is the minor heap full or an external interrupt has been triggered */
 Caml_inline int caml_check_gc_interrupt(caml_domain_state * dom_st)
