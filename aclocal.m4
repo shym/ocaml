@@ -551,9 +551,9 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
   AC_MSG_CHECKING([for $CC option to support _Atomic types])
   OCAML_CC_SAVE_VARIABLES
 
-  msg_result='none needed'
-  AS_IF([test -n "$1"],[CFLAGS="$CFLAGS $1"; msg_result="$1"])
-  AS_IF([test -n "$2"],[LIBS="$LIBS $2"; msg_result="$msg_result $2"])
+  opts=""
+  AS_IF([test -n "$1"],[CFLAGS="$CFLAGS $1"; opts="$1"])
+  AS_IF([test -n "$2"], [LIBS="$LIBS $2"; opts="${opts:+$opts }$2"])
 
   AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
@@ -569,9 +569,9 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
     }
     ]])],
   [cc_supports_atomic=true
-   AC_MSG_RESULT([$msg_result])],
+   AC_MSG_RESULT([${opts:-none needed}])],
   [cc_supports_atomic=false
-   AC_MSG_RESULT([unsupported])])
+   AC_MSG_RESULT([failure with ${opts:-no option}])])
 
   OCAML_CC_RESTORE_VARIABLES
 ])
