@@ -1110,9 +1110,6 @@ else
 winpthreads_OBJECTS =
 endif
 
-clean::
-	rm -f winpthreads-sources/src/*.obj winpthreads/src/*.obj
-
 runtime_COMMON_C_SOURCES = \
   addrmap \
   afl \
