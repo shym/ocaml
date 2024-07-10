@@ -67,7 +67,9 @@ void encode_C_literal(char_os *path)
 {
   char_os c;
 
+#ifdef _WIN32
   putchar('L');
+#endif
   putchar('"');
 
   while ((c = *path++) != 0) {
