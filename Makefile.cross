@@ -81,3 +81,18 @@ ifeq "$(SYSTEM)" "none"
 endif
 	# Real installation
 	$(MAKE) install $(INSTALL_OVERRIDES) OCAMLRUN=ocamlrun
+
+.PHONY: cross-flex
+cross-flex:
+	sed -e '/all:/,/endif/d' -e '/ifeq/,$$d' flexdll/Makefile > flexdll/Makefile.extract
+	$(MAKE) -C flexdll -f Makefile.extract version.ml
+	echo '(**)' > flexdll/Compat.ml
+	x86_64-w64-mingw32-gcc $(CFLAGS) -c -DMINGW \
+	  flexdll/flexdll.c -o flexdll/flexdll_mingw64.o
+	x86_64-w64-mingw32-gcc $(CFLAGS) -c -DMINGW \
+	  flexdll/flexdll_initer.c -o flexdll/flexdll_initer_mingw64.o
+	ocamlopt -g -I flexdll \
+	  $(addprefix flexdll/,\
+	    version.ml Compat.ml coff.ml cmdline.ml create_dll.ml reloc.ml) \
+	  -o flexdll/flexlink.exe
+	ln -s flexlink.exe flexdll/flexlink
