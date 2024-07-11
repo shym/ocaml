@@ -1318,7 +1318,7 @@ runtime/caml/jumptbl.h : runtime/caml/instruct.h
 SAK_CC ?= $(CC_FOR_BUILD)
 SAK_CFLAGS ?=\
   $(OC_CFLAGS) $(CFLAGS_FOR_BUILD) $(OC_CPPFLAGS) $(CPPFLAGS_FOR_BUILD)
-SAK_LINK ?= $(SAK_CC) $(SAK_CFLAGS) $(OC_EXE_LDFLAGS) $(OUTPUTEXE)$(1) $(2)
+SAK_LINK ?= $(SAK_CC) $(SAK_CFLAGS) $(OUTPUTEXE)$(1) $(2)
 
 $(SAK): runtime/sak.$(O)
 	$(V_MKEXE)$(call SAK_LINK,$@,$^)
