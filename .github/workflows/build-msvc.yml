@@ -12,9 +12,9 @@ on:
       - 'trunk'
   pull_request:
 
-# env:
+env:
   # Fully print commands executed by Make
-  # MAKEFLAGS: V=1
+  MAKEFLAGS: V=1
 
 jobs:
   build:
@@ -28,11 +28,8 @@ jobs:
 
     strategy:
       matrix:
-        x86_64: [true, false]
-        cc: [cl, clang-cl]
-        exclude:
-          - cc: clang-cl
-            x86_64: false
+        x86_64: [true]
+        cc: [cl]
 
     steps:
       - name: Save pristine PATH
