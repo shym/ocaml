@@ -845,7 +845,14 @@ dnl nefarious single quotes which may appear in any of the strings.
 AS_IF(
   [test x"$host" = x"$target"],
     [cross_compiler=false],
-    [cross_compiler=true])
+    [cross_compiler=true
+    # We require a non-cross-compiler of the same version
+    AC_MSG_CHECKING([the version of the installed OCaml compiler])
+    already_installed_version=`ocamlc -vnum`
+    AS_IF([test x"AC_PACKAGE_VERSION" = x"$already_installed_version"],
+          [AC_MSG_RESULT([compatible (AC_PACKAGE_VERSION)])],
+          [AC_MSG_ERROR(m4_normalize([incompatible (AC_PACKAGE_VERSION vs
+             $already_installed_version)]))])])
 
 AS_IF(
   [test x"$build" = x"$target" -o x"$target_runnable" = xtrue],
