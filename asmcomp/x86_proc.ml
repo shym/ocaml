@@ -27,6 +27,7 @@ type system =
   | S_freebsd
   | S_netbsd
   | S_openbsd
+  | S_none
 
   | S_unknown
 
@@ -43,6 +44,7 @@ let system = match Config.system with
   | "freebsd" -> S_freebsd
   | "netbsd" -> S_netbsd
   | "openbsd" -> S_openbsd
+  | "none" -> S_none
 
   | _ -> S_unknown
 
