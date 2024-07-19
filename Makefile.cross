@@ -49,7 +49,16 @@ endif
 
 cross.opt:
 	$(MAKE) runtime-all $(NO_ZSTD) $(RUNTIME_BUILD_OVERRIDES)
-	$(MAKE) ocamlc tools/ocamlmklib$(EXE) $(CROSS_COMPILER_OVERRIDES)
+	$(MAKE) ocamlc ocamlopt $(TOOLS_BYTECODE_TARGETS) expunge \
+	  $(CROSS_COMPILER_OVERRIDES)
+	$(MAKE) library $(CROSS_OVERRIDES)
+ifneq "$(SYSTEM)" "none"
+	$(MAKE) ocamlyacc $(CROSS_OVERRIDES)
+	$(MAKE) ocamllex $(CROSS_COMPILER_OVERRIDES)
+endif
+	$(MAKE) ocaml $(CROSS_COMPILER_OVERRIDES)
+	$(MAKE) -C otherlibs all $(CROSS_OVERRIDES)
+	# Opt
 	$(MAKE) runtimeopt $(NO_ZSTD)
 	$(MAKE) ocamlc.opt ocamlopt.opt $(TOOLS_NATIVE_TARGETS) \
 	  $(NO_ZSTD) $(CROSS_COMPILER_OVERRIDES) $(NATIVE_ZSTD_LIBS)
