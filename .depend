@@ -4189,6 +4189,7 @@ middle_end/closure/closure.cmo : \
     typing/env.cmi \
     lambda/debuginfo.cmi \
     middle_end/convert_primitives.cmi \
+    utils/config.cmi \
     middle_end/compilenv.cmi \
     utils/clflags.cmi \
     middle_end/clambda_primitives.cmi \
@@ -4211,6 +4212,7 @@ middle_end/closure/closure.cmx : \
     typing/env.cmx \
     lambda/debuginfo.cmx \
     middle_end/convert_primitives.cmx \
+    utils/config.cmx \
     middle_end/compilenv.cmx \
     utils/clflags.cmx \
     middle_end/clambda_primitives.cmx \

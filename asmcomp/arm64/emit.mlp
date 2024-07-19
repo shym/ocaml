@@ -1217,7 +1217,7 @@ let end_assembly () =
   emit_symbol_type emit_symbol lbl "object";
   emit_symbol_size lbl;
   begin match Config.system with
-  | "linux" ->
+  | "linux" | "none" ->
       (* Mark stack as non-executable *)
       `	.section	.note.GNU-stack,\"\",%progbits\n`
   | _ -> ()
