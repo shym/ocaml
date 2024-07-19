@@ -402,11 +402,11 @@ let rec close t env (lam : Lambda.lambda) : Flambda.t =
       | Max_wosize ->
           cst lambda_const_int ((1 lsl ((8*Backend.size_int) - 10)) - 1)
       | Ostype_unix ->
-          cst lambda_const_bool (String.equal Sys.os_type "Unix")
+          cst lambda_const_bool (String.equal Config.target_os_type "Unix")
       | Ostype_win32 ->
-          cst lambda_const_bool (String.equal Sys.os_type "Win32")
+          cst lambda_const_bool (String.equal Config.target_os_type "Win32")
       | Ostype_cygwin ->
-          cst lambda_const_bool (String.equal Sys.os_type "Cygwin")
+          cst lambda_const_bool (String.equal Config.target_os_type "Cygwin")
       | Backend_type -> cst Lambda.const_int 0 (* tag 0 is the same as Native *)
       | Standard_library_default ->
           Compilenv.need_stdlib_location ();
