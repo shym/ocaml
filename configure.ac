@@ -140,6 +140,7 @@ AC_SUBST([arch_specific_SOURCES])
 AC_SUBST([arch64])
 AC_SUBST([model])
 AC_SUBST([system])
+AC_SUBST([target_os_type])
 AC_SUBST([bytecode_cflags])
 AC_SUBST([bytecode_cppflags])
 AC_SUBST([native_cflags])
@@ -1598,6 +1599,7 @@ AS_IF([$natdynlink],
   [natdynlink_archive=""])
 
 AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
+target_os_type="$ostype"
 
 AC_CHECK_TARGET_TOOL([DIRECT_LD],[ld])
 AS_IF([test -z "$PARTIALLD"],
