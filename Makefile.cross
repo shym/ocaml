@@ -36,7 +36,7 @@ CROSS_OVERRIDES=OCAMLRUN=ocamlrun NEW_OCAMLRUN=ocamlrun \
 CROSS_COMPILER_OVERRIDES=$(CROSS_OVERRIDES) CAMLC=ocamlc CAMLOPT=ocamlopt \
   BEST_OCAMLC=ocamlc BEST_OCAMLOPT=ocamlopt BEST_OCAMLLEX=ocamllex
 
-INSTALL_OVERRIDES=build_ocamldoc=false WITH_DEBUGGER=
+INSTALL_OVERRIDES=build_ocamldoc=false WITH_DEBUGGER= INSTALL_BYTECODE_PROGRAMS=false
 
 # Freestanding target custom options
 ifeq "$(SYSTEM)" "none"
@@ -57,18 +57,28 @@ cross.opt:
 	$(MAKE) otherlibrariesopt ocamltoolsopt $(NO_ZSTD) $(CROSS_OVERRIDES)
 	$(MAKE) tools-allopt.opt $(NO_ZSTD) $(CROSS_COMPILER_OVERRIDES)
 
-.PHONY: cross-install
-cross-install:
-	# dummy files
-	touch \
-	  $(addprefix toplevel/, \
-	    $(foreach ext,cmi cmt cmti cmx, native/nat__dummy__.$(ext)) \
-	      all__dummy__.cmx topstart.o native/tophooks.cmi)
-	$(LN) `which ocamlyacc` yacc/ocamlyacc.opt$(EXE)
-	$(LN) `which ocamllex` lex/ocamllex.opt$(EXE)
-ifeq "$(SYSTEM)" "none"
-	$(LN) `which ocamlyacc` yacc/ocamlyacc$(EXE)
-	$(LN) `which ocamllex` lex/ocamllex$(EXE)
-endif
+.PHONY: cross-installopt
+cross-installopt:
+	# # dummy files
+	# touch \
+	#   $(addprefix toplevel/, \
+	#     $(foreach ext,cmi cmt cmti cmx, native/nat__dummy__.$(ext)) \
+	#       all__dummy__.cmx topstart.o native/tophooks.cmi)
+	# $(LN) `which ocamlyacc` yacc/ocamlyacc.opt$(EXE)
+	# $(LN) `which ocamllex` lex/ocamllex.opt$(EXE)
+# ifeq "$(SYSTEM)" "none"
+	# $(LN) `which ocamlyacc` yacc/ocamlyacc$(EXE)
+	# $(LN) `which ocamllex` lex/ocamllex$(EXE)
+# endif
+	$(MKDIR) "$(INSTALL_BINDIR)"
+	$(MKDIR) "$(INSTALL_LIBDIR)"
+	for i in $(subst systhreads,threads,$(OTHERLIBRARIES)); do \
+	  $(MKDIR) "$(INSTALL_LIBDIR)/$$i" ; \
+	done
+	$(MKDIR) "$(INSTALL_STUBLIBDIR)"
+	$(MKDIR) "$(INSTALL_COMPLIBDIR)"
+	$(MKDIR) "$(INSTALL_DOCDIR)"
+	$(MKDIR) "$(INSTALL_INCDIR)"
+	$(MKDIR) "$(INSTALL_LIBDIR_PROFILING)"
 	# Real installation
-	$(MAKE) install $(INSTALL_OVERRIDES) OCAMLRUN=ocamlrun
+	$(MAKE) installopt $(INSTALL_OVERRIDES) OCAMLRUN=ocamlrun
