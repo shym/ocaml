@@ -58,7 +58,7 @@ jobs:
       - name: Build the compiler
         shell: bash
         run: >-
-          make -j4
+          make -j4 V=1
       - name: Test suite
         shell: bash
         run: >-
