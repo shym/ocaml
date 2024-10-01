@@ -716,9 +716,9 @@ compare:
 # The core system has to be rebuilt after bootstrap anyway, so strip ocamlc
 # and ocamllex, which means the artefacts should be identical.
 	mv ocamlc$(EXE) ocamlc.tmp
-	$(OCAMLRUN) tools/stripdebug -all ocamlc.tmp ocamlc$(EXE)
+	$(OCAMLRUN) tools/stripdebug$(EXE) -all ocamlc.tmp ocamlc$(EXE)
 	mv lex/ocamllex$(EXE) ocamllex.tmp
-	$(OCAMLRUN) tools/stripdebug -all ocamllex.tmp lex/ocamllex$(EXE)
+	$(OCAMLRUN) tools/stripdebug$(EXE) -all ocamllex.tmp lex/ocamllex$(EXE)
 	rm -f ocamllex.tmp ocamlc.tmp
 	@if $(CMPCMD) boot/ocamlc ocamlc$(EXE) \
          && $(CMPCMD) boot/ocamllex lex/ocamllex$(EXE); \
@@ -746,7 +746,7 @@ promote-cross: promote-common
 # Promote the newly compiled system to the rank of bootstrap compiler
 # (Runs on the new runtime, produces code for the new runtime)
 .PHONY: promote
-promote: PROMOTE = $(OCAMLRUN) tools/stripdebug -all
+promote: PROMOTE = $(OCAMLRUN) tools/stripdebug$(EXE) -all
 promote: promote-common
 	rm -f boot/ocamlrun$(EXE)
 	cp runtime/ocamlrun$(EXE) boot/ocamlrun$(EXE)
@@ -1380,24 +1380,18 @@ runtime/caml/jumptbl.h : runtime/caml/instruct.h
 	sed -n -e '/^  /s/ \([A-Z]\)/ \&\&lbl_\1/gp' \
 	       -e '/^}/q' > $@
 
-# These are provided as a temporary shim to allow cross-compilation systems
-# to supply a host C compiler and different flags and a linking macro.
-SAK_CC ?= $(CC)
-SAK_CFLAGS ?= $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)
-SAK_LINK ?= $(MKEXE_VIA_CC)
-
 $(SAK): runtime/sak.$(O)
 	$(V_MKEXE)$(call SAK_LINK,$@,$^)
 
 runtime/sak.$(O): runtime/sak.c runtime/caml/misc.h runtime/caml/config.h
 	$(V_CC)$(SAK_CC) $(SAK_CFLAGS) $(OUTPUTOBJ)$@ -c $<
 
-C_LITERAL = $(shell $(SAK) encode-C-literal '$(1)')
+C_LITERAL = $(shell $(SAK) $(ENCODE_C_LITERAL) '$(1)')
 
 runtime/build_config.h: $(ROOTDIR)/Makefile.config $(SAK)
 	$(V_GEN){ \
 	  echo '/* This file is generated from $(ROOTDIR)/Makefile.config */'; \
-	  printf '#define OCAML_STDLIB_DIR %s\n' '$(call C_LITERAL,$(LIBDIR))'; \
+	  printf '#define OCAML_STDLIB_DIR %s\n' '$(call C_LITERAL,$(TARGET_LIBDIR))'; \
 	  $(if $(LIBDIR_REL),printf '#define OCAML_STDLIB_DIR_REL %s\n' \
 	                            '$(call C_LITERAL,$(LIBDIR_REL))',true); \
 	  echo '#define HOST "$(HOST)"'; \
@@ -3039,6 +3033,11 @@ ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
 endif
 
 include .depend
+
+# Include the cross-compiler recipes only when relevant
+ifneq "$(HOST)" "$(TARGET)"
+include Makefile.cross
+endif
 
 Makefile.config Makefile.build_config: config.status
 config.status:

@@ -1063,9 +1063,9 @@ let rec close ({ backend; fenv; cenv ; mutable_vars } as env) lam =
       | Word_size -> cst make_const_int (8*B.size_int)
       | Int_size -> cst make_const_int (8*B.size_int - 1)
       | Max_wosize -> cst make_const_int ((1 lsl ((8*B.size_int) - 10)) - 1)
-      | Ostype_unix -> cst make_const_bool (Sys.os_type = "Unix")
-      | Ostype_win32 -> cst make_const_bool (Sys.os_type = "Win32")
-      | Ostype_cygwin -> cst make_const_bool (Sys.os_type = "Cygwin")
+      | Ostype_unix -> cst make_const_bool (Config.target_os_type = "Unix")
+      | Ostype_win32 -> cst make_const_bool (Config.target_os_type = "Win32")
+      | Ostype_cygwin -> cst make_const_bool (Config.target_os_type = "Cygwin")
       | Backend_type ->
           cst make_const_int 0 (* tag 0 is the same as Native here *)
       | Standard_library_default ->
