@@ -68,9 +68,7 @@ have_root ()
   if [[ -z $1 ]]; then
     return 1;
   else
-    log_entry=$(git log "$1~1..$UPSTREAM_HEAD" --format=%H \
-                        --first-parent --reverse | head -1)
-    if [[ $log_entry != $1 ]]; then
+    if ! git rev-list "$1~1..$UPSTREAM_HEAD" | grep -e "$1" ;
       return 1;
     fi
   fi
