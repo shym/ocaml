@@ -803,6 +803,7 @@ bytecode_runtime_id
 bindir_to_libdir
 ar_supports_response_files
 QS
+TARGET_LIBDIR
 ocaml_libdir
 ocaml_bindir
 compute_deps
@@ -1067,6 +1068,7 @@ DLLIBS
 LIBUNWIND_CPPFLAGS
 LIBUNWIND_LDFLAGS
 TARGET_BINDIR
+TARGET_LIBDIR
 WINDOWS_UNICODE_MODE
 DEFAULT_STRING
 CC
@@ -1799,6 +1801,9 @@ Some influential environment variables:
               linker flags for libunwind (e.g. -L<location of libunwind>
   TARGET_BINDIR
               location of the runtime binaries on the target system
+  TARGET_LIBDIR
+              location of the libraries on the target system, to be used for
+              dynlink; defaults to the value of libdir
   WINDOWS_UNICODE_MODE
               how to handle Unicode under Windows: ansi, compatible
   DEFAULT_STRING
@@ -3565,6 +3570,7 @@ LINEAR_MAGIC_NUMBER=Caml1999L035
 
 
 
+
 ## Generated files
 
 ac_config_files="$ac_config_files Makefile.build_config"
@@ -4150,6 +4156,8 @@ if test ${enable_cmm_invariants+y}
 then :
   enableval=$enable_cmm_invariants;
 fi
+
+
 
 
 
@@ -22671,6 +22679,11 @@ esac
 if test x"$libdir" = x'${exec_prefix}/lib'
 then :
   libdir="$libdir"/ocaml
+fi
+
+if test x"$TARGET_LIBDIR" = x
+then :
+  TARGET_LIBDIR="$libdir"
 fi
 
 if test x"$mandir" = x'${datarootdir}/man'

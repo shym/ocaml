@@ -1391,7 +1391,7 @@ C_LITERAL = $(shell $(SAK) encode-C-literal '$(1)')
 runtime/build_config.h: $(ROOTDIR)/Makefile.config $(SAK)
 	$(V_GEN){ \
 	  echo '/* This file is generated from $(ROOTDIR)/Makefile.config */'; \
-	  printf '#define OCAML_STDLIB_DIR %s\n' '$(call C_LITERAL,$(LIBDIR))'; \
+	  printf '#define OCAML_STDLIB_DIR %s\n' '$(call C_LITERAL,$(TARGET_LIBDIR))'; \
 	  $(if $(LIBDIR_REL),printf '#define OCAML_STDLIB_DIR_REL %s\n' \
 	                            '$(call C_LITERAL,$(LIBDIR_REL))',true); \
 	  echo '#define HOST "$(HOST)"'; \
