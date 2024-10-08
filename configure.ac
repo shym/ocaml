@@ -636,7 +636,9 @@ AS_IF([test x"$enable_ocamldoc" = "xno"],
 # Initialization of libtool
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
-AC_CHECK_TARGET_TOOLS([LD],[ld link])
+AS_IF([$cross_compiler],
+  [AC_CHECK_TARGET_TOOLS([LD],[ld link])],
+  [AC_CHECK_TOOLS([LD],[ld link])])
 # libtool will detect a build-to-host C toolchain but when building an OCaml
 # cross compiler we need the C toolchain to build the target runtime so we
 # temporarily define host* values as macros for target* values so that the
@@ -2336,7 +2338,9 @@ AC_CHECK_HEADER([spawn.h],
   [AC_CHECK_FUNC([posix_spawn],
     [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN], [1])])])])
 
-AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config], [false])
+AS_IF([$cross_compiler],
+  [AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config], [false])],
+  [AC_PATH_TOOL([PKG_CONFIG], [pkg-config], [false])])
 
 ## ZSTD compression library
 
