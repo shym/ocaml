@@ -119,6 +119,12 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - name: Show Android NDK info
+        run: |
+          cd "$HOME/android"
+          set -x
+          cat android-ndk-r27b/NOTICE.toolchain
+          cat android-ndk-r27b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
       - name: Configure, build and install Linux-to-Android OCaml
         run: |
           D="$HOME/android/android-ndk-r27b/toolchains/llvm/prebuilt/linux-x86_64/bin"
@@ -127,7 +133,7 @@ jobs:
           if ! ./configure --prefix="$HOME/cross" --target=$T \
                    CC="$D/clang --target=$T" \
                    AR="$D/llvm-ar" \
-                   LD="$D/ld" \
+                   PARTIALLD="$D/ld -r" \
                    RANLIB="$D/llvm-ranlib" \
                    STRIP="$D/llvm-strip" ; then
             cat config.log
@@ -135,7 +141,7 @@ jobs:
           else
             cat config.log
           fi
-          make crossopt -j
+          make crossopt -j V=1
           make installcross
       - name: Show opt.opt configuration
         run: |
@@ -149,3 +155,4 @@ jobs:
           set -x
           cat example.ml
           $HOME/cross/bin/ocamlopt.opt example.ml -o example -verbose
+          file example
