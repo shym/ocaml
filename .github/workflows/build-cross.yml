@@ -88,7 +88,7 @@ jobs:
             cat config.log
             exit 1
           fi
-          make crossopt -j
+          make crossopt -j$(nproc)
           make installcross
           ln -sr "$HOME/cross/bin/flexlink.opt.exe" "$HOME/.local/bin/flexlink"
       - name: Show opt.opt configuration
