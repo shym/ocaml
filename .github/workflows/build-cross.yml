@@ -287,8 +287,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 21
+          arch: x86_64
           disable-animations: true
-          emulator-boot-timeout: 60
           script: |
             adb push example /data/local/tmp/example
             adb shell /data/local/tmp/example
