@@ -251,7 +251,7 @@ jobs:
           persist-credentials: false
       - name: Configure, build and install Linux-to-Android OCaml
         env:
-          TARGET: aarch64-linux-android21
+          TARGET: x86_64-linux-android21
           TOOLDIR: android-ndk-r27b/toolchains/llvm/prebuilt/linux-x86_64/bin
         run: |
           DIR="$HOME/android/$TOOLDIR"
@@ -287,3 +287,12 @@ jobs:
         with:
           name: android-executable
           path: example
+      - name: Run example
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 21
+          disable-animations: true
+          emulator-boot-timeout: 60
+          script: |
+            adb push example /data/local/tmp/example
+            adb shell /data/local/tmp/example
