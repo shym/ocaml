@@ -1284,11 +1284,10 @@ runtime/caml/jumptbl.h : runtime/caml/instruct.h
 	sed -n -e '/^  /s/ \([A-Z]\)/ \&\&lbl_\1/gp' \
 	       -e '/^}/q' > $@
 
-# These are provided as a temporary shim to allow cross-compilation systems
-# to supply a host C compiler and different flags and a linking macro.
-SAK_CC ?= $(CC)
-SAK_CFLAGS ?= $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)
-SAK_LINK ?= $(MKEXE_VIA_CC)
+SAK_CC ?= $(CC_FOR_BUILD)
+SAK_CFLAGS ?=\
+  $(OC_CFLAGS) $(CFLAGS_FOR_BUILD) $(OC_CPPFLAGS) $(CPPFLAGS_FOR_BUILD)
+SAK_LINK ?= $(SAK_CC) $(SAK_CFLAGS) $(OC_EXE_LDFLAGS) $(OUTPUTEXE)$(1) $(2)
 
 $(SAK): runtime/sak.$(O)
 	$(V_MKEXE)$(call SAK_LINK,$@,$^)
@@ -2732,6 +2731,8 @@ ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
 endif
 
 include .depend
+
+include Makefile.cross
 
 Makefile.config Makefile.build_config: config.status
 config.status:
