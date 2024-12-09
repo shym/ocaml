@@ -561,11 +561,8 @@ AC_ARG_ENABLE([cmm-invariants],
   [AS_HELP_STRING([--enable-cmm-invariants],
     [enable invariants checks in Cmm])])
 
-AC_ARG_WITH([target-bindir],
-  [AS_HELP_STRING([--with-target-bindir],
-    [location of the runtime binaries on the target system])],
-  [TARGET_BINDIR=$withval],
-  [TARGET_BINDIR=''])
+AC_ARG_VAR([TARGET_BINDIR],
+  [location of the runtime binaries on the target system])
 
 AC_ARG_WITH([target-sh],
   [AS_HELP_STRING([--with-target-sh],

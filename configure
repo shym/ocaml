@@ -772,6 +772,7 @@ ac_ct_LD
 LD
 DEFAULT_STRING
 WINDOWS_UNICODE_MODE
+TARGET_BINDIR
 LIBUNWIND_LDFLAGS
 LIBUNWIND_CPPFLAGS
 DLLIBS
@@ -1027,7 +1028,6 @@ enable_native_compiler
 enable_flambda
 enable_flambda_invariants
 enable_cmm_invariants
-with_target_bindir
 with_target_sh
 with_stublibs
 enable_reserved_header_bits
@@ -1066,6 +1066,7 @@ COMPILER_NATIVE_CPPFLAGS
 DLLIBS
 LIBUNWIND_CPPFLAGS
 LIBUNWIND_LDFLAGS
+TARGET_BINDIR
 WINDOWS_UNICODE_MODE
 DEFAULT_STRING
 CC
@@ -1757,8 +1758,6 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-odoc             build documentation with odoc
-  --with-target-bindir    location of the runtime binaries on the target
-                          system
   --with-target-sh        location of Posix sh on the target system
   --with-stublibs         additional directory for searching for bytecode stub
                           libraries
@@ -1798,6 +1797,8 @@ Some influential environment variables:
               libunwind headers>)
   LIBUNWIND_LDFLAGS
               linker flags for libunwind (e.g. -L<location of libunwind>
+  TARGET_BINDIR
+              location of the runtime binaries on the target system
   WINDOWS_UNICODE_MODE
               how to handle Unicode under Windows: ansi, compatible
   DEFAULT_STRING
@@ -4152,14 +4153,6 @@ fi
 
 
 
-# Check whether --with-target-bindir was given.
-if test ${with_target_bindir+y}
-then :
-  withval=$with_target_bindir; TARGET_BINDIR=$withval
-else $as_nop
-  TARGET_BINDIR=''
-fi
-
 
 
 # Check whether --with-target-sh was given.
@@ -4407,13 +4400,13 @@ else $as_nop
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the installed OCaml compiler can build the cross compiler" >&5
 printf %s "checking if the installed OCaml compiler can build the cross compiler... " >&6; }
     already_installed_version="$(ocamlc -vnum)"
-    if test x"5.3.0" = x"$already_installed_version"
+    if test x"5.3.1+relocatable" = x"$already_installed_version"
 then :
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes (5.3.0)" >&5
-printf "%s\n" "yes (5.3.0)" >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes (5.3.1+relocatable)" >&5
+printf "%s\n" "yes (5.3.1+relocatable)" >&6; }
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (5.3.0 vs $already_installed_version)" >&5
-printf "%s\n" "no (5.3.0 vs $already_installed_version)" >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (5.3.1+relocatable vs $already_installed_version)" >&5
+printf "%s\n" "no (5.3.1+relocatable vs $already_installed_version)" >&6; }
       as_fn_error $? "exiting" "$LINENO" 5
 fi
     cross_compiler=true
