@@ -1,6 +1,7 @@
 name: Cross compilers
 
 on:
+  push:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
@@ -36,7 +37,6 @@ env:
 
 jobs:
   non-cross:
-    if: contains(github.event.pull_request.labels.*.name, 'run-crosscompiler-tests')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout OCaml
