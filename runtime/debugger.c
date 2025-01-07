@@ -43,6 +43,12 @@ void caml_debugger_init(void)
 {
 }
 
+opcode_t caml_debugger_saved_instruction(code_t pc)
+{
+  caml_fatal_error("cannot execute debugger instructions without a debugger\n");
+  return 0;
+}
+
 void caml_debugger(enum event_kind event, value param)
 {
 }
