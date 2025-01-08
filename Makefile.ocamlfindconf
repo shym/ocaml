@@ -1,0 +1,26 @@
+# Generate an ocamlfind toolchain configuration
+
+# This will drop the ocaml-, ocaml-cross- and cross- prefixes of the generated
+# file name, so that the opam install instructions can simply use the package
+# name (probably using such a prefix) to generate the toolchain configuration
+
+%.conf:
+	$(MAKE) --no-print-directory --quiet -f Makefile.ocamlfindconf \
+	  print-$(patsubst cross-%,%,$(patsubst ocaml-%,%,$(*F))) \
+	  > $(@D)/$(patsubst cross-%,%,$(patsubst ocaml-%,%,$(@F)))
+
+# To get the value of prefix
+include Makefile.config
+
+# Phony but generic rule, so without a `.PHONY` declaration
+# Fail if `prefix` is empty (but still display the content)
+print-%:
+	@test -n "$(prefix:%=x)"
+	$(info path($*) = "$(prefix)/lib")
+	$(info destdir($*) = "$(prefix)/lib")
+	$(info stdlib($*) = "$(prefix)/lib/ocaml")
+	$(info ocamlopt($*) = "$(prefix)/bin/ocamlopt.opt")
+	$(info ocamlc($*) = "$(prefix)/bin/ocamlc.opt")
+	$(info ocamlmklib($*) = "$(prefix)/bin/ocamlmklib")
+	$(info ocamldep($*) = "$(prefix)/bin/ocamldep.opt")
+	$(info ocamlcp($*) = "$(prefix)/bin/ocamlcp")
