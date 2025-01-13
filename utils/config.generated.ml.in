@@ -45,6 +45,7 @@ let native_c_compiler =
   c_compiler ^ " " ^ native_cflags ^ " " ^ native_cppflags
 let native_c_libraries = {@QS@|@cclibs@|@QS@}
 let native_ldflags = {@QS@|@native_ldflags@|@QS@}
+let with_nonexecstack_note = @with_nonexecstack_note@
 let native_pack_linker = {@QS@|@PACKLD@|@QS@}
 let default_rpath = {@QS@|@rpath@|@QS@}
 let mksharedlibrpath = {@QS@|@mksharedlibrpath@|@QS@}
