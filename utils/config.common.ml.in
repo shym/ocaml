@@ -100,6 +100,7 @@ let configuration_variables () =
   p "asm" asm;
   p_bool "asm_cfi_supported" asm_cfi_supported;
   p_bool "with_frame_pointers" with_frame_pointers;
+  p_bool "nonexecstack_note" nonexecstack_note;
   p "ext_exe" ext_exe;
   p "ext_obj" ext_obj;
   p "ext_asm" ext_asm;
