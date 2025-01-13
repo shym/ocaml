@@ -15,6 +15,14 @@
 /*                                                                        */
 /**************************************************************************/
 
+/* Non-executable stack note */
+
+#ifdef WITH_NONEXECSTACK_NOTE
+#define NONEXECSTACK_NOTE       .section .note.GNU-stack,"",%progbits
+#else
+#define NONEXECSTACK_NOTE
+#endif
+
 /* Call Frame Information directives */
 
 #ifdef ASM_CFI_SUPPORTED
