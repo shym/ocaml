@@ -1213,5 +1213,7 @@ caml_system.frametable:
         .short  0               /* no roots here */
         .align  8
 
+#ifdef NONEXECSTACK_NOTE
 /* Mark stack as non-executable */
         .section .note.GNU-stack,"",%progbits
+#endif

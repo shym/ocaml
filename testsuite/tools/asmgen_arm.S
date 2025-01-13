@@ -13,6 +13,8 @@
 /*                                                                        */
 /**************************************************************************/
 
+#include "caml/m.h"
+
         .text
 
         .global call_gen_code
@@ -38,5 +40,7 @@ caml_c_call:
     @ function to call is in r10
         bx      r10
 
+#ifdef NONEXECSTACK_NOTE
 /* Mark stack as non-executable */
         .section .note.GNU-stack,"",%progbits
+#endif

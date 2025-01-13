@@ -865,5 +865,7 @@ let end_assembly() =
       efa_def_label = (fun l -> `{emit_label l}:\n`);
       efa_string = (fun s -> emit_bytes_directive "	.byte	" (s ^ "\000"))
      };
-   (* Mark stack as non-executable *)
-   `	.section .note.GNU-stack,\"\",%progbits\n`
+  if Config.nonexecstack_note then begin
+    (* Mark stack as non-executable *)
+    `	.section .note.GNU-stack,\"\",%progbits\n`
+  end

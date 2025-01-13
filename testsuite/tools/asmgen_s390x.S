@@ -1,3 +1,5 @@
+#include "caml/m.h"
+
 #define ALIGN 8
 
 #define CALL_GEN_CODE call_gen_code
@@ -63,5 +65,7 @@ CAML_ABSF_MASK:
 
         .comm   young_limit, 8
 
+#ifdef NONEXECSTACK_NOTE
 /* Mark stack as non-executable */
         .section .note.GNU-stack,"",%progbits
+#endif
