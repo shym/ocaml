@@ -179,6 +179,7 @@ AC_SUBST([oc_ldflags])
 AC_SUBST([oc_dll_ldflags])
 AC_SUBST([cclibs])
 AC_SUBST([native_ldflags])
+AC_SUBST([nonexecstack_note])
 AC_SUBST([zstd_libs])
 AC_SUBST([bytecode_cflags])
 AC_SUBST([bytecode_cppflags])
@@ -673,6 +674,8 @@ popdef([host_vendor])dnl
 popdef([host_cpu])dnl
 popdef([host_alias])dnl
 popdef([host])dnl
+
+OCAML_NONEXECSTACK_NOTE
 
 AS_CASE([$host],
   [sparc-sun-solaris*],
