@@ -69,18 +69,14 @@
 #define FUNCTION(name) \
         TEXT_SECTION(name); \
         .globl name; \
-        .type name,@function; \
+        TYPE_DIRECTIVE(name,@function); \
         .align FUNCTION_ALIGN; \
         name:
 
 #endif
 
-#if defined(SYS_linux) || defined(SYS_gnu)
 #define ENDFUNCTION(name) \
-        .size name, . - name
-#else
-#define ENDFUNCTION(name)
-#endif
+        SIZE_DIRECTIVE(name)
 
 #ifdef WITH_FRAME_POINTERS
 #define FRAME_POINTER_SIZE   8
