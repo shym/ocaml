@@ -54,13 +54,13 @@ let emit_symbol s =
 (* Object types *)
 
 let emit_symbol_type emit_lbl_or_sym lbl_or_sym ty =
-  if not macosx then begin
+  if Config.asm_size_type_directives then begin
     `	.type	{emit_lbl_or_sym lbl_or_sym}, %{emit_string ty}\n`
   end
 
 
 let emit_symbol_size sym =
-  if not macosx then begin
+  if Config.asm_size_type_directives then begin
     `	.size	{emit_symbol sym}, .-{emit_symbol sym}\n`
   end
 
