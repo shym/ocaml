@@ -60,10 +60,11 @@ caml_hot.code_end:
 #define FUNCTION(name) \
         TEXT_SECTION(name); \
         .globl name; \
-        .type name,@function; \
+        TYPE_DIRECTIVE(name,@function) \
         name:
 
-#define ENDFUNCTION(name)
+#define ENDFUNCTION(name) \
+        SIZE_DIRECTIVE(name)
 
 /* Stack space to be reserved by the caller of a C function */
 #define RESERVED_STACK          160
