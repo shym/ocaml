@@ -74,6 +74,7 @@ let system = {@QS@|@system@|@QS@}
 
 let asm = {@QS@|@AS@|@QS@}
 let asm_cfi_supported = @asm_cfi_supported@
+let asm_size_type_directives = @asm_size_type_directives@
 let with_frame_pointers = @frame_pointers@
 let reserved_header_bits = @reserved_header_bits@
 
