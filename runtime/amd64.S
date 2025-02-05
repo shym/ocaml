@@ -19,6 +19,7 @@
 /* PIC mode support based on contribution by Paul Stravers (see PR#4795) */
 
 #include "caml/m.h"
+#include "caml/asm.h"
 
 #if defined(SYS_macosx)
 
@@ -80,8 +81,6 @@
 #else
 #define ENDFUNCTION(name)
 #endif
-
-#include "../runtime/caml/asm.h"
 
 #ifdef WITH_FRAME_POINTERS
 #define FRAME_POINTER_SIZE   8
