@@ -35,7 +35,10 @@ let emit_printf fmt =
 
 let emit_int32 n = emit_printf "0x%lx" n
 
+let macosx = Config.system = "macosx"
+
 let emit_symbol s =
+  if macosx then output_char !output_channel '_';
   for i = 0 to String.length s - 1 do
     let c = s.[i] in
     match c with
