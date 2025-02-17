@@ -313,13 +313,17 @@ jobs:
           ./configure.sh --target=x86_64-solo5-none-static
           make -j openlibm/libopenlibm.a nolibc/libnolibc.a toolchains
           ln -sr _build/build-toolchain/* "$HOME/.local/bin/"
-      - name: Configure, build and install Linux-to-Windows OCaml
+      - name: Configure, build and install Linux-to-Solo5 OCaml
         run: |
           set -x
           ./configure --prefix="$HOME/cross" --target=x86_64-solo5-ocaml \
               || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
-          make crossopt -j
+          # We don’t need ocamllex nor ocamlyacc, so we cheat, to avoid extra
+          # stubs
+          make crossopt -j OLDS="-o yacc/ocamlyacc -o lex/ocamllex"
+          ln -sf "$(command -v ocamllex)" ocaml/lex/ocamllex
+          ln -sf "$(command -v ocamlyacc)" ocaml/yacc/ocamlyacc
           make installcross
       - name: Show opt.opt configuration
         run: |
