@@ -304,9 +304,9 @@ jobs:
       - name: Checkout ocaml-solo5
         uses: actions/checkout@v4
         with:
-          repository: mirage/ocaml-solo5
+          repository: shym/ocaml-solo5
           path: ocaml-solo5
-          ref: v1.0.1
+          ref: trunk
       - name: Build and install libraries and toolchain for OCaml/Solo5
         run: |
           cd ocaml-solo5
