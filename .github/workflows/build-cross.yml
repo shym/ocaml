@@ -267,3 +267,81 @@ jobs:
   #         script: |
   #           adb push example /data/local/tmp/example
   #           adb shell /data/local/tmp/example
+
+  cross-solo5:
+    runs-on: ubuntu-latest
+    needs: non-cross
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: non-cross-ocaml
+      - name: Install non-cross OCaml and set up environment
+        run: |
+          set -x
+          tar xaf ocaml.tar.zst -C "$HOME"
+          rm -f ocaml.tar.zst
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Checkout OCaml
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: Checkout solo5
+        uses: actions/checkout@v4
+        with:
+          repository: solo5/solo5
+          path: solo5
+          ref: v0.9.0
+      - name: Build and install solo5
+        run: |
+          set -x
+          cd solo5
+          ./configure.sh --prefix="$HOME/.local"
+          make V=1
+          make V=1 install
+      - name: Checkout ocaml-solo5
+        uses: actions/checkout@v4
+        with:
+          repository: mirage/ocaml-solo5
+          path: ocaml-solo5
+          ref: v1.0.1
+      - name: Build and install libraries and toolchain for OCaml/Solo5
+        run: |
+          cd ocaml-solo5
+          ./configure.sh --target=x86_64-solo5-none-static
+          make -j openlibm/libopenlibm.a nolibc/libnolibc.a toolchains
+          ln -sr _build/build-toolchain/* "$HOME/.local/bin/"
+      - name: Configure, build and install Linux-to-Windows OCaml
+        run: |
+          set -x
+          ./configure --prefix="$HOME/cross" --target=x86_64-solo5-ocaml \
+              || res=$?
+          if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
+          make crossopt -j
+          make installcross
+      - name: Show opt.opt configuration
+        run: |
+          set -x
+          $HOME/cross/bin/ocamlopt.opt -config
+          cat runtime/build_config.h
+      - name: Cross compile a small program
+        run: |
+          printf %s "$EXAMPLE_PROGRAM$COMPLIBS_PROG_AARCH64" > example.ml
+          set -x
+          cat example.ml
+          solo5-elftool gen-manifest ocaml-solo5/example/manifest.json manifest.c
+          $HOME/cross/bin/ocamlopt.opt -I $HOME/cross/lib/ocaml/compiler-libs/ ocamlcommon.cmxa ocamloptcomp.cmxa manifest.c ocaml-solo5/example/startup.c example.ml -o example -verbose -cclib "-z solo5-abi=spt"
+      - name: Run the small example program
+        run: |
+          set -x
+          solo5-spt example
+      - name: Test cross sak
+        run: |
+          printf %s "$STR_UTF16" > utf16.ref
+          printf %s "$STR_UTF8" > utf8.ref
+          set -x
+          runtime/sak encode-C-utf16-literal "$TESTDIR" > utf16
+          git diff --no-index utf16.ref utf16
+          runtime/sak encode-C-utf8-literal "$TESTDIR" > utf8
+          git diff --no-index utf8.ref utf8
