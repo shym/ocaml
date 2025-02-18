@@ -333,7 +333,7 @@ jobs:
           cat runtime/build_config.h
       - name: Cross compile a small program
         run: |
-          printf %s "$EXAMPLE_PROGRAM$COMPLIBS_PROG_AARCH64" > example.ml
+          printf %s "$EXAMPLE_PROGRAM$COMPLIBS_PROG_X86_64" > example.ml
           set -x
           cat example.ml
           solo5-elftool gen-manifest ocaml-solo5/example/manifest.json manifest.c
