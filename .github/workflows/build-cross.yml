@@ -316,8 +316,9 @@ jobs:
       - name: Configure, build and install Linux-to-Solo5 OCaml
         run: |
           set -x
+          # We disable Unix as Solo5 is really not a POSIX implementation!
           ./configure --prefix="$HOME/cross" --target=x86_64-solo5-ocaml \
-              || res=$?
+              --disable-unix-lib || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
           # We don’t need ocamllex nor ocamlyacc, so we cheat, to avoid extra
           # stubs
