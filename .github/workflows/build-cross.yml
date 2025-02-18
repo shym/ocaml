@@ -323,8 +323,8 @@ jobs:
           # We don’t need ocamllex nor ocamlyacc, so we cheat, to avoid extra
           # stubs
           make crossopt -j OLDS="-o yacc/ocamlyacc -o lex/ocamllex"
-          ln -sf "$(command -v ocamllex)" ocaml/lex/ocamllex
-          ln -sf "$(command -v ocamlyacc)" ocaml/yacc/ocamlyacc
+          ln -sf "$(command -v ocamllex)" lex/ocamllex
+          ln -sf "$(command -v ocamlyacc)" yacc/ocamlyacc
           make installcross
       - name: Show opt.opt configuration
         run: |
