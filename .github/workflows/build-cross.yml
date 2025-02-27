@@ -63,14 +63,14 @@ jobs:
           path: /tmp/ocaml.tar.zst
           retention-days: 1
 
-  cross-arm-linux-zig:
+  cross-arm-macos-zig:
     runs-on: ubuntu-latest
     needs: non-cross
     env:
       ZIGPATH: /home/runner/zig
       ZIGURL: https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
-      TARGET: aarch64-linux-gnu
-      ZTARGET: aarch64-linux-gnu.2.34
+      TARGET: aarch64-apple-darwin
+      ZTARGET: aarch64-macos
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v4
@@ -83,7 +83,6 @@ jobs:
           rm -f ocaml.tar.zst
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           echo "$ZIGPATH" >> "$GITHUB_PATH"
-          sudo apt-get install -y libc6-arm64-cross qemu-user
       - name: Restore the zig compiler from cache
         uses: actions/cache/restore@v4
         id: cache
@@ -134,7 +133,3 @@ jobs:
           set -x
           cat example.ml
           $HOME/cross/bin/ocamlopt.opt -I $HOME/cross/lib/ocaml/compiler-libs/ ocamlcommon.cmxa ocamloptcomp.cmxa example.ml -o example -verbose
-      - name: Run the small example program
-        run: |
-          set -x
-          qemu-aarch64 -L /usr/aarch64-linux-gnu example
