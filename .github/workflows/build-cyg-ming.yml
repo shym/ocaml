@@ -1,7 +1,6 @@
 name: Build on Cygwin and MinGW
 
 on:
-  push:
   pull_request:
 
 # Restrict the GITHUB_TOKEN
