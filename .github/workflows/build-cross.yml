@@ -118,6 +118,7 @@ jobs:
               CC="zig cc --target=$ZTARGET" \
               PARTIALLD="zig cc --target=$ZTARGET -r" \
               AR="zig ar" STRIP=: \
+              --disable-shared \
               || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
           make crossopt -j
