@@ -239,7 +239,6 @@ jobs:
               CPPFLAGS='-Dpthread_cancel=assert' \
               AR="$DIR/llvm-ar" \
               PARTIALLD="$DIR/ld -r" \
-              RANLIB="$DIR/llvm-ranlib" \
               STRIP="$DIR/llvm-strip" || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
           make crossopt -j
