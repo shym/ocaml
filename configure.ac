@@ -669,7 +669,7 @@ AS_IF(
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
 AS_IF([$cross_compiler],
-  [AC_CHECK_TARGET_TOOLS([LD],[ld link],[false])],
+  [AC_CHECK_TARGET_TOOLS([LD],[ldbla linkbla],[false])],
   [AC_CHECK_TOOLS([LD],[ld link])])
 # libtool will detect a build-to-host C toolchain but when building an OCaml
 # cross compiler we need the C toolchain to build the target runtime so we
