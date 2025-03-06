@@ -25,6 +25,15 @@ AC_INIT([OCaml],
 
 AC_MSG_NOTICE([Configuring OCaml version AC_PACKAGE_VERSION])
 
+# Escape dune-pkg sandbox
+AS_CASE([$prefix],
+  [*/.sandbox/*],
+    [AC_MSG_CHECKING([trying to escape the sandbox])
+    prefix_out="${prefix%/.sandbox/*}"
+    prefix_in="${prefix#*/.sandbox/*/}"
+    prefix="$prefix_out/$prefix_in"
+    AC_MSG_RESULT([$prefix])])
+
 # Configuration variables
 
 ## Command-line arguments passed to configure

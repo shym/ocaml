@@ -3284,6 +3284,20 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Configuring OCaml version 5.3.0" >&5
 printf "%s\n" "$as_me: Configuring OCaml version 5.3.0" >&6;}
 
+# Escape dune-pkg sandbox
+case $prefix in #(
+  */.sandbox/*) :
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking trying to escape the sandbox" >&5
+printf %s "checking trying to escape the sandbox... " >&6; }
+    prefix_out="${prefix%/.sandbox/*}"
+    prefix_in="${prefix#*/.sandbox/*/}"
+    prefix="$prefix_out/$prefix_in"
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $prefix" >&5
+printf "%s\n" "$prefix" >&6; } ;; #(
+  *) :
+     ;;
+esac
+
 # Configuration variables
 
 ## Command-line arguments passed to configure
