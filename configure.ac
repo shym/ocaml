@@ -864,13 +864,16 @@ AS_CASE([$lt_cv_ar_at_file],
 
 # Libraries to build depending on the target
 
+AS_CASE([$target],
+  [*-*-mingw32*|*-pc-windows],
+    [unix_or_win32="win32"],
+  [unix_or_win32="unix"])
+
 AS_CASE([$cygwin_build_env,$target],
   [true,*-*-mingw32*|true,*-pc-windows],
-    [unix_or_win32="win32"
-    ocamltest_libunix="Some false"
+    [ocamltest_libunix="Some false"
     ocamlyacc_wstr_module="yacc/wstr"],
-  [unix_or_win32="unix"
-  ocamltest_libunix="Some true"
+  [ocamltest_libunix="Some true"
   ocamlyacc_wstr_module=""])
 
 AS_CASE([$target],
