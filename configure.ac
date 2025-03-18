@@ -869,8 +869,8 @@ AS_CASE([$target],
     [unix_or_win32="win32"],
   [unix_or_win32="unix"])
 
-AS_CASE([$cygwin_build_env,$target],
-  [true,*-*-mingw32*|true,*-pc-windows],
+AS_CASE([$target],
+  [*-*-mingw32*|*-pc-windows],
     [ocamltest_libunix="Some false"
     ocamlyacc_wstr_module="yacc/wstr"],
   [ocamltest_libunix="Some true"

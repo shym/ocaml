@@ -14163,8 +14163,8 @@ case $target in #(
     unix_or_win32="unix" ;;
 esac
 
-case $cygwin_build_env,$target in #(
-  true,*-*-mingw32*|true,*-pc-windows) :
+case $target in #(
+  *-*-mingw32*|*-pc-windows) :
     ocamltest_libunix="Some false"
     ocamlyacc_wstr_module="yacc/wstr" ;; #(
   *) :
