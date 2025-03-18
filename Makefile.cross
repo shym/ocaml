@@ -94,6 +94,7 @@ cross-flexdll: | $(BYTE_BINDIR) $(OPT_BINDIR)
 	  NATDYNLINK=false LINKFLAGS= flexlink.exe support
 	$(LN) $(FLEXDLL_SOURCE_DIR)/flexlink.exe flexlink.opt.exe
 	$(LN) flexlink.opt.exe flexlink.byte.exe
+	$(LN) $(addprefix $(FLEXDLL_SOURCE_DIR)/, $(FLEXDLL_OBJECTS)) .
 	cp flexlink.byte.exe $(BYTE_BINDIR)/flexlink
 	cd $(BYTE_BINDIR) && $(LN) flexlink flexlink.exe
 	cp $(addprefix $(FLEXDLL_SOURCE_DIR)/, $(FLEXDLL_OBJECTS)) $(BYTE_BINDIR)
