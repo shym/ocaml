@@ -10,8 +10,13 @@
 	  print-$(patsubst cross-%,%,$(patsubst ocaml-%,%,$(*F))) \
 	  > $(@D)/$(patsubst cross-%,%,$(patsubst ocaml-%,%,$(@F)))
 
-# To get $(prefix) and $(EXE)
-include Makefile.config
+prefix := $(shell IFS=:; \
+  for p in $$PATH; do \
+    if expr $$p : '.*/ocaml-cross-compiler.*' > /dev/null; then \
+      echo $${p%/bin}/lib/ocaml-cross-compiler; \
+      break; \
+    fi; \
+  done)
 
 # Phony but generic rule, so without a `.PHONY` declaration
 # Fail if `prefix` is empty (but still display the content)
