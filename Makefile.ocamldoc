@@ -1,0 +1,171 @@
+#**************************************************************************
+#*                                                                        *
+#*                                 OCaml                                  *
+#*                                                                        *
+#*                          Samuel Hym, Tarides                           *
+#*                                                                        *
+#*   Copyright 2026 Tarides                                               *
+#*                                                                        *
+#*   All rights reserved.  This file is distributed under the terms of    *
+#*   the GNU Lesser General Public License version 2.1, with the          *
+#*   special exception on linking described in the file LICENSE.          *
+#*                                                                        *
+#**************************************************************************
+
+# This Makefile can build an ocamldoc package in two flavours: `builtin` (when
+# the actual `ocamldoc` binary and library have been built as part of the
+# compiler) and `standalone` (when the compiler was built with
+# `--disable-ocamldoc`), in which case it is built by this package and installed
+# at the same location (ie the library is installed in `lib/ocaml/ocamldoc`)
+# The `builtin` and `standalone` phony targets build each the corresponding
+# flavour. The default `all` target will detect which version should be built
+# before building it.
+#
+# A `state` file, to be installed in `share`, will be generated to contain the
+# flavour. This is using the same technique than `graphics.4.08.1`, where the
+# package can be provided either by the compiler package itself or has to be
+# built as part of the current package.
+#
+# When installing the `ocamldoc` package, we can detect whether the `ocamldoc`
+# binary is already installed. But there are two possible setups when that
+# happens: either `ocamldoc` was built as part of the compiler package or we are
+# running `opam reinstall ocamldoc` (where the package can be rebuilt while its
+# previous build is still installed). So we install as part of the `ocamldoc`
+# package a `state` file containing either `builtin` or `standalone`. If we can
+# find that installed file, we reinstall the same flavour. Otherwise, we detect
+# the `ocamldoc` binary: if present, we use the `builtin` flavour, otherwise the
+# `standalone`. Note that, if the `ocamldoc` package is rebuilt due to a change
+# in the `ocaml-option-no-ocamldoc` (because it depends on the compiler
+# package), opam will have removed it before building the compiler package, and
+# so the `state` file will not be found and the detection of the `ocamldoc`
+# binary will choose the correct flavour.
+
+# Who am I, for recursive calls
+ME := $(firstword $(MAKEFILE_LIST))
+
+MKDIR=mkdir -p
+
+.PHONY: all
+all: state
+	$(MAKE) -f $(ME) $(file <state)
+
+ifeq "$(wildcard Makefile.build_config)" ""
+# Before `reconfigure` has run, source directly the installed Makefile.config
+-include $(shell ocamlc -config-var standard_library)/Makefile.config
+else
+ROOTDIR := .
+include Makefile.build_config
+endif
+
+STATE ?= $(datarootdir)/ocamldoc/state
+
+state:
+	@printf 'GEN %s: ' "$@"
+	@if test -e "$(STATE)"; then \
+	  cat "$(STATE)" | tee $@; \
+	else if test -x "$(BINDIR)/ocamldoc"; then \
+	  echo builtin | tee $@; \
+	else \
+	  echo standalone | tee $@; \
+	fi; fi
+
+.PHONY: builtin
+builtin: ocamldoc.install
+
+.PHONY: standalone
+standalone: reconfigure
+	$(MAKE) -f $(ME) build
+	$(MAKE) -f $(ME) ocamldoc.install
+
+# Enforce --disable-dependency-generation to make sure the .depend that will be
+# generated in 'build' will not be overwritten again
+.PHONY: reconfigure
+reconfigure:
+	./configure $(CONFIGURE_ARGS) --enable-ocamldoc \
+	  --disable-dependency-generation
+
+
+# Build a standalone ocamldoc
+##############################
+
+PROGRAMS=$(addsuffix $(EXE), \
+           $(foreach f, \
+             ocamlc ocamlopt yacc/ocamlyacc lex/ocamllex, \
+             $(f) $(f).opt))
+OVERRIDES=OCAMLRUN=ocamlrun NEW_OCAMLRUN=ocamlrun \
+  CAMLC=ocamlc CAMLOPT=ocamlopt \
+  BEST_OCAMLC=ocamlc BEST_OCAMLOPT=ocamlopt \
+  BEST_OCAMLLEX=ocamllex OCAMLYACC=ocamlyacc \
+  $(addprefix -o $(EMPTY),$(PROGRAMS) ocamllex)
+
+ifeq "$(NATIVE_COMPILER)" "true"
+OCAMLDOC_TGT := ocamldoc ocamldoc.opt
+else
+OCAMLDOC_TGT := ocamldoc
+endif
+
+VPATH = +compiler-libs +unix +str +dynlink
+ocamldoc_LIBRARIES = \
+  $(addprefix $(LIBDIR)/, \
+    compiler-libs/ocamlcommon \
+    unix/unix \
+    str/str \
+    dynlink/dynlink) \
+  ocamldoc/odoc_info
+
+.PHONY: build
+build: Makefile.build_config
+	$(MAKE) $(OVERRIDES) \
+	  $(patsubst %.mll,%.ml, $(wildcard ocamldoc/*.mll)) \
+	  $(patsubst %.mly,%.mli, $(wildcard ocamldoc/*.mly)) \
+	  $(patsubst %.mly,%.ml, $(wildcard ocamldoc/*.mly))
+	ocamldep -slash -I ocamldoc ocamldoc/*.ml ocamldoc/*.mli > .depend
+	$(MAKE) $(OVERRIDES) $(OCAMLDOC_TGT) VPATH="$(VPATH)" \
+	  ocamldoc_LIBRARIES="$(ocamldoc_LIBRARIES)"
+
+
+# Installation targets
+#######################
+
+ocamldoc.install: state
+	$(MAKE) --no-print-directory --quiet -f $(ME) \
+	  print-$(file < $<)-install > $@
+
+.PHONY: print-builtin-install
+print-builtin-install:
+	$(info share: [)
+	$(info $(EMPTY)  "state")
+	$(info ])
+	@:
+
+# Definition extracted from Makefile:
+# OCamldoc files to install (a subset of what is built)
+OCAMLDOC_LIBMLIS = $(addprefix ocamldoc/,$(addsuffix .mli,\
+  odoc_dep odoc_dot odoc_extension odoc_html odoc_info odoc_latex \
+  odoc_latex_style odoc_man odoc_messages odoc_ocamlhtml odoc_parameter \
+  odoc_texi odoc_text_lexer odoc_to_text odoc_type odoc_value))
+OCAMLDOC_LIBCMTS=$(OCAMLDOC_LIBMLIS:.mli=.cmt) $(OCAMLDOC_LIBMLIS:.mli=.cmti)
+
+.PHONY: print-ocamldoc.install
+print-standalone-install: print-builtin-install
+	$(info bin: [)
+	$(foreach f,\
+	  ocamldoc/ocamldoc$(EXE) $(wildcard ocamldoc/ocamldoc.opt$(EXE)),\
+	  $(info $(patsubst %,$(EMPTY)  "%",$(f))))
+	$(info ])
+	$(info lib_root: [)
+	$(foreach f,\
+	  ocamldoc/ocamldoc.hva ocamldoc/odoc_info.cma ocamldoc/META \
+	  $(wildcard ocamldoc/*.cmi) \
+	  $(wildcard ocamldoc/*.cmx) \
+	  $(wildcard ocamldoc/odoc_info.$(A)) \
+	  $(wildcard ocamldoc/odoc_info.cmxa), \
+	  $(info $(subst F,$(f),$(EMPTY)  "F" { "ocaml/F" })))
+ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
+	$(foreach f,\
+	  $(OCAMLDOC_LIBMLIS) \
+	  $(OCAMLDOC_LIBCMTS), \
+	  $(info $(subst F,$(f),$(EMPTY)  "F" { "ocaml/F" })))
+endif
+	$(info ])
+	@:
