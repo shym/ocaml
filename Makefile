@@ -2974,16 +2974,18 @@ endif
 
 Makefile.config Makefile.build_config: config.status
 config.status:
-	@echo "Please refer to the installation instructions:"
-	@echo "- In file INSTALL for Unix systems."
-	@echo "- In file README.win32.adoc for Windows systems."
-	@echo "On Unix systems, if you've just unpacked the distribution,"
-	@echo "something like"
-	@echo "  ./configure"
-	@echo "  make"
-	@echo "  make install"
-	@echo "should work."
-	@false
+	@if ! test -e $@; then \
+	  echo "Please refer to the installation instructions:" ; \
+	  echo "- In file INSTALL for Unix systems." ; \
+	  echo "- In file README.win32.adoc for Windows systems." ; \
+	  echo "On Unix systems, if you've just unpacked the distribution," ; \
+	  echo "something like" ; \
+	  echo "  ./configure" ; \
+	  echo "  make" ; \
+	  echo "  make install" ; \
+	  echo "should work." ; \
+	  false; \
+	fi
 
 # We need to express that all the CMX files depend on the native compiler,
 # so that they get invalidated and rebuilt when the compiler is updated
