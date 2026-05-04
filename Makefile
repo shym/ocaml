@@ -1924,6 +1924,7 @@ odoc_info_SOURCES = $(addprefix ocamldoc/,\
   odoc_analyse.mli odoc_analyse.ml \
   odoc_info.mli odoc_info.ml)
 
+ifneq "$(build_ocamldoc)" "separate"
 ocamldoc_LIBRARIES = \
   compilerlibs/ocamlcommon \
   $(addprefix otherlibs/,\
@@ -1931,6 +1932,17 @@ ocamldoc_LIBRARIES = \
     str/str \
     dynlink/dynlink) \
   ocamldoc/odoc_info
+else
+VPATH = +compiler-libs +unix +str +dynlink
+
+ocamldoc_LIBRARIES = \
+  $(addprefix $(LIBDIR)/, \
+    compiler-libs/ocamlcommon \
+    unix/unix \
+    str/str \
+    dynlink/dynlink) \
+  ocamldoc/odoc_info
+endif
 
 ocamldoc_SOURCES = $(addprefix ocamldoc/,\
   odoc_dag2html.mli odoc_dag2html.ml \
@@ -1955,8 +1967,16 @@ OCAMLDOC_LIBMLIS = $(addprefix ocamldoc/,$(addsuffix .mli,\
 OCAMLDOC_LIBCMIS=$(OCAMLDOC_LIBMLIS:.mli=.cmi)
 OCAMLDOC_LIBCMTS=$(OCAMLDOC_LIBMLIS:.mli=.cmt) $(OCAMLDOC_LIBMLIS:.mli=.cmti)
 
+ifneq "$(build_ocamldoc)" "separate"
 ocamldoc/%: CAMLC = $(BEST_OCAMLC) $(STDLIBFLAGS)
 ocamldoc/%: CAMLOPT = $(BEST_OCAMLOPT) $(STDLIBFLAGS)
+else
+ocamldoc/%: CAMLC = ocamlc
+ocamldoc/%: CAMLOPT = ocamlopt
+ocamldoc/%: OCAMLLEX = ocamllex
+ocamldoc/%: OCAMLYACC = ocamlyacc
+ocamldoc/%: MAYBE_ADD_BYTECODE_LAUNCHER_FLAGS =
+endif
 
 ifeq "$(SUPPORTS_SHARED_LIBRARIES)" "false"
 # ocamldoc needs a custom runtime when building statically owing to the C stubs
@@ -1966,11 +1986,54 @@ ocamldoc/ocamldoc$(EXE): ocamldoc_BYTECODE_LINKFLAGS += -custom
 endif
 
 .PHONY: ocamldoc
-ocamldoc: ocamldoc/ocamldoc$(EXE) ocamldoc/odoc_test.cmo \
-  ocamlc ocamlyacc ocamllex
+ocamldoc: ocamldoc/ocamldoc$(EXE) ocamldoc/odoc_test.cmo
+
+ifneq "$(build_ocamldoc)" "separate"
+ocamldoc: ocamlc ocamlyacc ocamllex
 
 .PHONY: ocamldoc.opt
 ocamldoc.opt: ocamldoc/ocamldoc.opt$(EXE) ocamlopt ocamlyacc ocamllex
+else
+
+# Rules to build ocamldoc as a separate package, containing ocamldoc if it was
+# not built within the OCaml compiler package (standalone case) or containing
+# almost nothing otherwise (builtin case)
+
+.PHONY: ocamldoc.opt
+ocamldoc.opt:
+	$(MAKE) -o ocamlopt$(EXE) ocamldoc/ocamldoc.opt$(EXE)
+
+.PHONY: ocamldoc.standalone
+ocamldoc.standalone: ocamldoc
+ifeq "$(NATIVE_COMPILER)" "true"
+ocamldoc.standalone: ocamldoc.opt
+endif
+
+.PHONY: ocamldoc.builtin
+# Nothing to do, it's all done in the compiler package
+ocamldoc.builtin:
+	@:
+
+OCAMLDOC_STATE ?= $(datarootdir)/ocamldoc/state
+
+# Detect whether ocamldoc is built-in in the OCaml compiler and record that
+# information. Take care of the case where it is being rebuilt, so possibly
+# still available in bin/ even if it was standalone, by fetching the information
+# from the installed $(OCAMLDOC_STATE) file.
+ocamldoc.state:
+	$(V_GEN)if test -e $(call QUOTE_SINGLE,$(OCAMLDOC_STATE)); then \
+	  cp $(call QUOTE_SINGLE,$(OCAMLDOC_STATE)) $@; \
+	else if test -x $(call QUOTE_SINGLE,$(BINDIR)/ocamldoc); then \
+	  echo builtin > $@; \
+	else \
+	  echo standalone > $@; \
+	fi; fi
+
+# Phony rule to build the ocamldoc package, standalone if need be
+.PHONY: ocamldoc.pkg
+ocamldoc.pkg: ocamldoc.state
+	$(MAKE) ocamldoc.$(file < $<)
+endif # build_ocamldoc = separate
 
 # OCamltest
 
@@ -3150,8 +3213,17 @@ ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
 	  lib, $(INSTALL_LIBDIR_COMPILERLIBS))
 endif
 
+ifneq "$(build_ocamldoc)" "separate"
 .PHONY: .depend
 include .depend
+else
+include .separate-ocamldoc-depend
+
+.separate-ocamldoc-depend: $(odoc_info_SECONDARY_FILES) \
+  $(ocamldoc_SECONDARY_FILES)
+	$(V_OCAMLDEP)ocamlc -depend $(OC_OCAMLDEPFLAGS) -I ocamldoc \
+	  $(OCAMLDEPFLAGS) ocamldoc/*.mli ocamldoc/*.ml > $@
+endif
 
 # Include the cross-compiler recipes only when relevant
 ifneq "$(HOST)" "$(TARGET)"
