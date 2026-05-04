@@ -1,0 +1,67 @@
+#**************************************************************************
+#*                                                                        *
+#*                                 OCaml                                  *
+#*                                                                        *
+#*                          Samuel Hym, Tarides                           *
+#*                                                                        *
+#*   Copyright 2026 Tarides                                               *
+#*                                                                        *
+#*   All rights reserved.  This file is distributed under the terms of    *
+#*   the GNU Lesser General Public License version 2.1, with the          *
+#*   special exception on linking described in the file LICENSE.          *
+#*                                                                        *
+#**************************************************************************
+
+# This Makefile allows to build a separate ocamldoc package in two flavours:
+# `builtin` (when the actual `ocamldoc` binary and library have been built as
+# part of the compiler) and `standalone` (when the compiler was built with
+# `--disable-ocamldoc`), in which case it is built by this package and installed
+# at the same location (ie the library is installed in `lib/ocaml/ocamldoc`)
+#
+# FIXME
+# The `builtin` and `standalone` phony targets build each the corresponding
+# flavour. The default `all` target will detect which version should be built
+# before building it.
+#
+# A `state` file, to be installed in `share`, will be generated to contain the
+# flavour. This is using the same technique than `graphics.4.08.1`, where the
+# package can be provided either by the compiler package itself or has to be
+# built as part of the current package.
+#
+# When installing the `ocamldoc` package, we can detect whether the `ocamldoc`
+# binary is already installed. But there are two possible setups when that
+# happens: either `ocamldoc` was built as part of the compiler package or we are
+# running `opam reinstall ocamldoc` (where the package can be rebuilt while its
+# previous build is still installed). So we install as part of the `ocamldoc`
+# package a `state` file containing either `builtin` or `standalone`. If we can
+# find that installed file, we reinstall the same flavour. Otherwise, we detect
+# the `ocamldoc` binary: if present, we use the `builtin` flavour, otherwise the
+# `standalone`. Note that, if the `ocamldoc` package is rebuilt due to a change
+# in the `ocaml-option-no-ocamldoc` (because it depends on the compiler
+# package), opam will have removed it before building the compiler package, and
+# so the `state` file will not be found and the detection of the `ocamldoc`
+# binary will choose the correct flavour.
+
+OCAMLRUN=ocamlrun
+NEW_OCAMLRUN=ocamlrun
+CAMLC=ocamlc
+CAMLOPT=ocamlopt
+BEST_OCAMLC=ocamlc
+BEST_OCAMLOPT=ocamlopt
+BEST_OCAMLLEX=ocamllex
+OCAMLLEX=ocamllex
+OCAMLYACC=ocamlyacc
+
+include .separate-ocamldoc-depend
+
+.separate-ocamldoc-depend: $(odoc_info_SECONDARY_FILES) \
+  $(ocamldoc_SECONDARY_FILES)
+	$(V_OCAMLDEP)ocamlc -depend $(OC_OCAMLDEPFLAGS) -I ocamldoc \
+	  $(OCAMLDEPFLAGS) ocamldoc/*.mli ocamldoc/*.ml > $@
+
+.PHONY: separate-ocamldoc
+separate-ocamldoc: ocamldoc
+ifeq "$(NATIVE_COMPILER)" "true"
+separate-ocamldoc:
+	$(MAKE) -o ocamlopt$(EXE) ocamldoc.opt
+endif

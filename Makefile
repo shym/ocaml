@@ -1821,6 +1821,7 @@ odoc_info_SOURCES = $(addprefix ocamldoc/,\
   odoc_analyse.mli odoc_analyse.ml \
   odoc_info.mli odoc_info.ml)
 
+ifneq "$(build_ocamldoc)" "separate"
 ocamldoc_LIBRARIES = \
   compilerlibs/ocamlcommon \
   $(addprefix otherlibs/,\
@@ -1828,6 +1829,17 @@ ocamldoc_LIBRARIES = \
     str/str \
     dynlink/dynlink) \
   ocamldoc/odoc_info
+else
+VPATH = +compiler-libs +unix +str +dynlink
+
+ocamldoc_LIBRARIES = \
+  $(addprefix $(LIBDIR)/, \
+    compiler-libs/ocamlcommon \
+    unix/unix \
+    str/str \
+    dynlink/dynlink) \
+  ocamldoc/odoc_info
+endif
 
 ocamldoc_SOURCES = $(addprefix ocamldoc/,\
   odoc_dag2html.mli odoc_dag2html.ml \
@@ -1852,18 +1864,24 @@ OCAMLDOC_LIBMLIS = $(addprefix ocamldoc/,$(addsuffix .mli,\
 OCAMLDOC_LIBCMIS=$(OCAMLDOC_LIBMLIS:.mli=.cmi)
 OCAMLDOC_LIBCMTS=$(OCAMLDOC_LIBMLIS:.mli=.cmt) $(OCAMLDOC_LIBMLIS:.mli=.cmti)
 
+ifneq "$(build_ocamldoc)" "separate"
 ocamldoc/%: CAMLC = $(BEST_OCAMLC) $(STDLIBFLAGS)
 ocamldoc/%: CAMLOPT = $(BEST_OCAMLOPT) $(STDLIBFLAGS)
+else
+ocamldoc/%: CAMLC = ocamlc
+ocamldoc/%: CAMLOPT = ocamlopt
+endif
 
 .PHONY: ocamldoc
 ocamldoc: ocamldoc/ocamldoc$(EXE) ocamldoc/odoc_test.cmo
 
-ocamldoc/ocamldoc$(EXE): ocamlc ocamlyacc ocamllex
-
 .PHONY: ocamldoc.opt
 ocamldoc.opt: ocamldoc/ocamldoc.opt$(EXE)
 
+ifneq "$(build_ocamldoc)" "separate"
+ocamldoc/ocamldoc$(EXE): ocamlc ocamlyacc ocamllex
 ocamldoc/ocamldoc.opt$(EXE): ocamlopt ocamlyacc ocamllex
+endif
 
 # OCamltest
 
@@ -2965,7 +2983,12 @@ ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
 	   "$(INSTALL_COMPLIBDIR)"
 endif
 
+ifneq "$(build_ocamldoc)" "separate"
+.PHONY: .depend
 include .depend
+else
+include Makefile.ocamldoc
+endif
 
 # Include the cross-compiler recipes only when relevant
 ifneq "$(HOST)" "$(TARGET)"
