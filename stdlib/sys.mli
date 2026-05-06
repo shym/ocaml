@@ -403,11 +403,23 @@ val catch_break : bool -> unit
    and [catch_break false] to let the system
    terminate the program on user interrupt.
 
+   See also the function [with_async_exns], below.
+
    Inside multi-threaded programs, the [Break] exception will arise in
    any one of the active threads, and will keep arising on further
    interactive interrupt until all threads are terminated. Use
    signal masks from [Thread.sigmask] to direct the interrupt towards a
    specific thread. *)
+
+val with_async_exns : (unit -> 'a) -> 'a
+(** [with_async_exns f] runs [f] and returns its result, in addition to
+    causing any asynchronous [Break] or [Stack_overflow] exceptions
+    (e.g. from finalisers, signal handlers or the GC) to be raised from the
+    call site of [with_async_exns].
+
+    The asynchronous exception handler context is per-domain, not per-fiber:
+    delimited continuations do not capture it.
+*)
 
 
 val ocaml_version : string

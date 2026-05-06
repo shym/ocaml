@@ -74,6 +74,19 @@ Caml_inline void restore_stack_parent(caml_domain_state* domain_state,
   }
 }
 
+static value raise_if_exception(value res)
+{
+  if (Is_exception_result(res)) {
+    if (Caml_state->raising_async_exn) {
+      Caml_state->raising_async_exn = 0;
+      caml_raise_async(Extract_exception(res));
+    } else {
+      caml_raise(Extract_exception(res));
+    }
+  }
+  return res;
+}
+
 #ifndef NATIVE_CODE
 
 /* Bytecode callbacks */
@@ -95,7 +108,9 @@ void caml_init_callbacks(void)
 #endif
 }
 
-CAMLexport value caml_callbackN_exn(value closure, int narg, value args[])
+/* Functions that return all exceptions, including asynchronous ones */
+
+static value caml_callbackN_exn0(value closure, int narg, value args[])
 {
   CAMLparam1(closure); /* no need to register args as roots, see below */
   CAMLlocal1(cont);
@@ -137,29 +152,75 @@ CAMLexport value caml_callbackN_exn(value closure, int narg, value args[])
   CAMLreturn (res);
 }
 
+CAMLexport value caml_callbackN_exn(value closure, int narg, value args[])
+{
+  value res = caml_callbackN_exn0(closure, narg, args);
+  Caml_state->raising_async_exn = 0;
+  return res;
+}
+
 CAMLexport value caml_callback_exn(value closure, value arg1)
 {
-  value arg[1];
+  value res, arg[1];
   arg[0] = arg1;
-  return caml_callbackN_exn(closure, 1, arg);
+  res = caml_callbackN_exn0(closure, 1, arg);
+  Caml_state->raising_async_exn = 0;
+  return res;
 }
 
 CAMLexport value caml_callback2_exn(value closure, value arg1, value arg2)
 {
-  value arg[2];
+  value res, arg[2];
   arg[0] = arg1;
   arg[1] = arg2;
-  return caml_callbackN_exn(closure, 2, arg);
+  res = caml_callbackN_exn0(closure, 2, arg);
+  Caml_state->raising_async_exn = 0;
+  return res;
 }
 
 CAMLexport value caml_callback3_exn(value closure,
-                               value arg1, value arg2, value arg3)
+                                    value arg1, value arg2, value arg3)
+{
+  value res, arg[3];
+  arg[0] = arg1;
+  arg[1] = arg2;
+  arg[2] = arg3;
+  res = caml_callbackN_exn0(closure, 3, arg);
+  Caml_state->raising_async_exn = 0;
+  return res;
+}
+
+/* Functions that propagate all exceptions, with any asynchronous exceptions
+   also being propagated asynchronously. */
+
+CAMLexport value caml_callbackN(value closure, int narg, value args[])
+{
+  return raise_if_exception(caml_callbackN_exn0(closure, narg, args));
+}
+
+CAMLexport value caml_callback(value closure, value arg1)
+{
+  value arg[1];
+  arg[0] = arg1;
+  return caml_callbackN(closure, 1, arg);
+}
+
+CAMLexport value caml_callback2(value closure, value arg1, value arg2)
+{
+  value arg[2];
+  arg[0] = arg1;
+  arg[1] = arg2;
+  return caml_callbackN(closure, 2, arg);
+}
+
+CAMLexport value caml_callback3(value closure,
+                                value arg1, value arg2, value arg3)
 {
   value arg[3];
   arg[0] = arg1;
   arg[1] = arg2;
   arg[2] = arg3;
-  return caml_callbackN_exn(closure, 3, arg);
+  return caml_callbackN(closure, 3, arg);
 }
 
 #else
@@ -177,7 +238,7 @@ typedef value (callback_stub)(caml_domain_state* state,
 
 callback_stub caml_callback_asm, caml_callback2_asm, caml_callback3_asm;
 
-CAMLexport value caml_callback_exn(value closure, value arg)
+static value callback(value closure, value arg)
 {
   Caml_check_caml_state();
   caml_domain_state* domain_state = Caml_state;
@@ -207,7 +268,7 @@ CAMLexport value caml_callback_exn(value closure, value arg)
   }
 }
 
-CAMLexport value caml_callback2_exn(value closure, value arg1, value arg2)
+static value callback2(value closure, value arg1, value arg2)
 {
   Caml_check_caml_state();
   caml_domain_state* domain_state = Caml_state;
@@ -237,8 +298,7 @@ CAMLexport value caml_callback2_exn(value closure, value arg1, value arg2)
   }
 }
 
-CAMLexport value caml_callback3_exn(value closure,
-                                    value arg1, value arg2, value arg3)
+static value callback3(value closure, value arg1, value arg2, value arg3)
 {
   Caml_check_caml_state();
   caml_domain_state* domain_state = Caml_state;
@@ -268,7 +328,8 @@ CAMLexport value caml_callback3_exn(value closure,
   }
 }
 
-CAMLexport value caml_callbackN_exn(value closure, int narg, value args[]) {
+static value callbackN(value closure, int narg, value args[])
+{
   while (narg >= 3) {
     /* We apply the first 3 arguments to get a new closure,
        and continue with the remaining arguments. */
@@ -279,7 +340,7 @@ CAMLexport value caml_callbackN_exn(value closure, int narg, value args[]) {
        in case a GC occurs during [caml_callback3_exn].
        Arguments 0, 1 and 2 need not and should not be registered. */
     Begin_roots_block(remaining_args, remaining_narg);
-    closure = caml_callback3_exn(closure, args[0], args[1], args[2]);
+    closure = callback3(closure, args[0], args[1], args[2]);
     End_roots();
 
     if (Is_exception_result(closure)) return closure;
@@ -291,10 +352,65 @@ CAMLexport value caml_callbackN_exn(value closure, int narg, value args[]) {
   case 0:
     return closure;
   case 1:
-    return caml_callback_exn(closure, args[0]);
+    return callback(closure, args[0]);
   default: /* case 2: */
-    return caml_callback2_exn(closure, args[0], args[1]);
+    return callback2(closure, args[0], args[1]);
   }
+}
+
+/* Functions that return all exceptions, including asynchronous ones */
+
+CAMLexport value caml_callback_exn(value closure, value arg)
+{
+  value res = callback(closure, arg);
+  Caml_state->raising_async_exn = 0;
+  return res;
+}
+
+CAMLexport value caml_callback2_exn(value closure, value arg1, value arg2)
+{
+  value res = callback2(closure, arg1, arg2);
+  Caml_state->raising_async_exn = 0;
+  return res;
+}
+
+CAMLexport value caml_callback3_exn(value closure, value arg1, value arg2,
+                                    value arg3)
+{
+  value res = callback3(closure, arg1, arg2, arg3);
+  Caml_state->raising_async_exn = 0;
+  return res;
+}
+
+CAMLexport value caml_callbackN_exn(value closure, int narg, value args[])
+{
+  value res = callbackN(closure, narg, args);
+  Caml_state->raising_async_exn = 0;
+  return res;
+}
+
+/* Functions that propagate all exceptions, with any asynchronous exceptions
+   also being propagated asynchronously. */
+
+CAMLexport value caml_callback (value closure, value arg)
+{
+  return raise_if_exception(callback(closure, arg));
+}
+
+CAMLexport value caml_callback2 (value closure, value arg1, value arg2)
+{
+  return raise_if_exception(callback2(closure, arg1, arg2));
+}
+
+CAMLexport value caml_callback3 (value closure, value arg1, value arg2,
+                                 value arg3)
+{
+  return raise_if_exception(callback3(closure, arg1, arg2, arg3));
+}
+
+CAMLexport value caml_callbackN (value closure, int narg, value args[])
+{
+  return raise_if_exception(callbackN(closure, narg, args));
 }
 
 #endif
@@ -333,35 +449,6 @@ CAMLexport caml_result caml_callback3_res(
   return Result_encoded(caml_callback3_exn(closure, arg1, arg2, arg3));
 }
 
-
-/* Exception-propagating variants of the above */
-
-static value encoded_value_or_raise(value res)
-{
-  if (Is_exception_result(res)) caml_raise(Extract_exception(res));
-  return res;
-}
-
-CAMLexport value caml_callback (value closure, value arg)
-{
-  return encoded_value_or_raise(caml_callback_exn(closure, arg));
-}
-
-CAMLexport value caml_callback2 (value closure, value arg1, value arg2)
-{
-  return encoded_value_or_raise(caml_callback2_exn(closure, arg1, arg2));
-}
-
-CAMLexport value caml_callback3 (value closure, value arg1, value arg2,
-                                 value arg3)
-{
-  return encoded_value_or_raise(caml_callback3_exn(closure, arg1, arg2, arg3));
-}
-
-CAMLexport value caml_callbackN (value closure, int narg, value args[])
-{
-  return encoded_value_or_raise(caml_callbackN_exn(closure, narg, args));
-}
 
 /* Naming of OCaml values */
 
@@ -442,4 +529,21 @@ CAMLexport void caml_iterate_named_values(caml_named_action f)
     }
   }
   caml_plat_unlock(&named_value_lock);
+}
+
+CAMLprim value caml_with_async_exns(value body_callback)
+{
+  caml_result res = Result_encoded(caml_callback_exn(body_callback, Val_unit));
+
+  /* raised as a normal exn, even if it was asynchronous */
+  if (caml_result_is_exception(res)) {
+    /* Drain the queue of pending actions. We may need to do
+       this several times if some raise */
+    do {
+      res = caml_process_pending_actions_with_root_res(res.data);
+    } while (caml_result_is_exception(res));
+    caml_raise(res.data);
+  }
+
+  return res.data;
 }

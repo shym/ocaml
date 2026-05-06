@@ -32,6 +32,7 @@
 #include "caml/callback.h"
 #include "caml/signals.h"
 #include "caml/tsan.h"
+#include "caml/fiber.h"
 
 /* The globals holding predefined exceptions */
 
@@ -56,10 +57,19 @@ extern caml_generated_constant
 CAMLnoret extern
 void caml_raise_exception (caml_domain_state* state, value bucket);
 
+static void unwind_local_roots(char *limit_of_current_c_stack_chunk)
+{
+  while (Caml_state->local_roots != NULL &&
+         (char *)Caml_state->local_roots < limit_of_current_c_stack_chunk)
+  {
+    Caml_state->local_roots = Caml_state->local_roots->next;
+  }
+}
+
 void caml_raise(value v)
 {
   Caml_check_caml_state();
-  char* exception_pointer;
+  char* limit_of_current_c_stack_chunk;
   CAMLassert(!Is_exception_result(v));
 
   caml_channel_cleanup_on_raise();
@@ -70,20 +80,71 @@ void caml_raise(value v)
      The line below does both these things at once. */
   v = result.data;
 
-  exception_pointer = (char*)Caml_state->c_stack;
+  limit_of_current_c_stack_chunk = (char*)Caml_state->c_stack;
 
-  if (exception_pointer == NULL) {
+  if (limit_of_current_c_stack_chunk == NULL) {
     caml_terminate_signals();
     caml_fatal_uncaught_exception(v);
   }
 
-  while (Caml_state->local_roots != NULL &&
-         (char *) Caml_state->local_roots < exception_pointer) {
-    Caml_state->local_roots = Caml_state->local_roots->next;
-  }
+  unwind_local_roots(limit_of_current_c_stack_chunk);
 
 #if defined(WITH_THREAD_SANITIZER)
-  caml_tsan_exit_on_raise_c(exception_pointer);
+  caml_tsan_exit_on_raise_c(limit_of_current_c_stack_chunk);
+#endif
+
+  caml_raise_exception(Caml_state, v);
+}
+
+/* Used by the stack overflow handler -> deactivate ASAN (see
+   segv_handler in signals_nat.c). */
+CAMLno_asan void caml_raise_async(value v)
+{
+  Caml_check_caml_state();
+  char* limit_of_current_c_stack_chunk;
+
+  caml_channel_cleanup_on_raise();
+
+  CAMLassert(!Is_exception_result(v));
+
+  /* Free stacks until we get back to the stack on which the async exn
+     handler lives.  (Note that we cannot cross a C stack chunk, since
+     installation of such a chunk via the callback mechanism always involves
+     the installation of an async exn handler.) */
+  int found_async_exn_handler_stack = 0;
+  while (!found_async_exn_handler_stack && Caml_state->current_stack != NULL) {
+    struct stack_info* current_stack = Caml_state->current_stack;
+
+    if (Caml_state->async_exn_handler >= (char*) Stack_base(current_stack)
+        && Caml_state->async_exn_handler < (char*) Stack_high(current_stack)) {
+      found_async_exn_handler_stack = 1;
+    }
+    else {
+      Caml_state->current_stack = Stack_parent(current_stack);
+      caml_free_stack(current_stack);
+    }
+  }
+  if (!found_async_exn_handler_stack) {
+    caml_fatal_error("Cannot find trap pointer during unwinding of stacks");
+  }
+
+  /* Do not run callbacks here: we are already raising an async exn,
+     so no need to check for another one, and avoiding polling here
+     removes the risk of recursion in caml_raise */
+
+  limit_of_current_c_stack_chunk = (char*)Caml_state->c_stack;
+
+  if (limit_of_current_c_stack_chunk == NULL) {
+    caml_terminate_signals();
+    caml_fatal_uncaught_exception(v);
+  }
+
+  unwind_local_roots(limit_of_current_c_stack_chunk);
+  Caml_state->exn_handler = Caml_state->async_exn_handler;
+  Caml_state->raising_async_exn = 1;
+
+#if defined(WITH_THREAD_SANITIZER)
+  caml_tsan_exit_on_raise_c(limit_of_current_c_stack_chunk);
 #endif
 
   caml_raise_exception(Caml_state, v);

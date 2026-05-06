@@ -127,6 +127,11 @@ CAMLexport void caml_fatal_error (const char *msg, ...)
   abort();
 }
 
+void caml_fatal_out_of_memory(void)
+{
+  caml_fatal_error("Out of memory");
+}
+
 CAMLexport void caml_fatal_error_arg (const char *fmt, const char *arg)
 {
   fprintf (stderr, fmt, arg);

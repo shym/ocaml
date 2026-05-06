@@ -36,6 +36,7 @@
 #include "caml/sys.h"
 #include "caml/memprof.h"
 #include "caml/finalise.h"
+#include "caml/printexc.h"
 
 /* The set of pending signals (received but not yet processed).
    It is represented as a bit vector.
@@ -170,7 +171,7 @@ CAMLexport void caml_enter_blocking_section(void)
          are further async callbacks pending beyond OCaml signal
          handlers. */
       caml_handle_gc_interrupt();
-      caml_get_value_or_raise(caml_process_pending_signals_res());
+      caml_get_value_or_raise_async(caml_process_pending_signals_res(), "");
     }
     caml_enter_blocking_section_hook ();
     /* Check again if a signal arrived in the meanwhile. If none,
@@ -221,6 +222,28 @@ void caml_init_signal_handling(void) {
   for (mlsize_t i = 0; i < NSIG; i++)
     Field(caml_signal_handlers, i) = Val_unit;
   caml_register_generational_global_root(&caml_signal_handlers);
+}
+
+/* If [res] holds an exception that is not [Sys.Break], abort with a fatal
+   uncaught-exception error.  Used when the only acceptable exception that
+   can be raised asynchronously from a context (e.g. a signal handler or
+   finaliser) is [Sys.Break]. */
+void caml_check_async(caml_result res, const char *msg)
+{
+  if (!caml_result_is_exception(res))
+    return;
+
+  value exn = res.data;
+
+  /* [Break] is not introduced as a predefined exception (in predef.ml and
+     stdlib.ml) since it causes trouble in conjunction with warnings about
+     constructor shadowing e.g. in format.ml.
+     "Sys.Break" must match stdlib/sys.mlp. */
+  const value *break_exn = caml_named_value("Sys.Break");
+  if (break_exn != NULL && exn == *break_exn)
+    return;
+
+  caml_fatal_uncaught_exception_with_message(exn, msg);
 }
 
 /* Execute a signal handler immediately */
@@ -347,14 +370,17 @@ caml_result caml_do_pending_actions_res(void)
 
   /* Call signal handlers first */
   caml_result result = caml_process_pending_signals_res();
+  caml_check_async(result, "signal handler");
   if (caml_result_is_exception(result)) goto exception;
 
   /* Call memprof callbacks */
   result = caml_memprof_run_callbacks_res();
+  caml_check_async(result, "memprof callback");
   if (caml_result_is_exception(result)) goto exception;
 
   /* Call finalisers */
   result = caml_final_do_calls_res();
+  caml_check_async(result, "finaliser");
   if (caml_result_is_exception(result)) goto exception;
 
   /* Process external interrupts (e.g. preemptive systhread switching).
@@ -387,8 +413,8 @@ caml_result caml_process_pending_actions_with_root_res(value root)
 
 CAMLprim value caml_process_pending_actions_with_root(value root)
 {
-  return caml_get_value_or_raise(
-    caml_process_pending_actions_with_root_res(root));
+  return caml_get_value_or_raise_async(
+    caml_process_pending_actions_with_root_res(root), "");
 }
 
 CAMLexport caml_result caml_process_pending_actions_res(void)
@@ -728,7 +754,7 @@ CAMLprim value caml_install_signal_handler(value signal_number, value action)
     caml_modify(&Field(caml_signal_handlers, sig), Field(action, 0));
   }
   caml_plat_unlock(&signal_install_mutex);
-  caml_get_value_or_raise(caml_process_pending_signals_res());
+  caml_get_value_or_raise_async(caml_process_pending_signals_res(), "");
   CAMLreturn (res);
  err:
   caml_plat_unlock(&signal_install_mutex);

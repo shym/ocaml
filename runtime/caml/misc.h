@@ -442,6 +442,8 @@ CAMLnoret CAMLextern void caml_fatal_error (const char *, ...)
 #endif
 ;
 
+CAMLnoret CAMLextern void caml_fatal_out_of_memory (void);
+
 /* Integer arithmetic with overflow detection.
    The functions return 0 if no overflow, 1 if overflow.
    The result of the operation is always stored at [*res].

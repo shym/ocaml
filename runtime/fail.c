@@ -117,7 +117,7 @@ CAMLexport void caml_raise_out_of_memory(void)
 
 CAMLexport void caml_raise_stack_overflow(void)
 {
-  caml_raise(caml_exception_stack_overflow());
+  caml_raise_async(caml_exception_stack_overflow());
 }
 
 CAMLexport void caml_raise_sys_error(value msg)

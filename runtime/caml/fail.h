@@ -65,6 +65,9 @@ struct caml_exception_context {
   struct longjmp_buffer* jmp;
   struct caml__roots_block* local_roots;
   volatile value* exn_bucket;
+  /* We use the stack ID rather than a pointer to the stack structure since
+     the latter can change upon stack reallocation. */
+  int64_t stack_id;
 };
 
 /* Global variables moved to Caml_state in 4.10 */
@@ -81,6 +84,8 @@ CAMLextern void caml_check_error(int err, char const * msg);
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+CAMLnoret CAMLextern void caml_raise_async (value res);
 
 /* The following functions raise immediately into OCaml.
 
@@ -132,6 +137,8 @@ CAMLextern value caml_exception_not_found (void);
 CAMLextern value caml_exception_array_bound_error (void);
 CAMLextern value caml_exception_sys_blocked_io (void);
 
+extern void caml_check_async(caml_result res, const char *msg);
+
 /* Returns the value of a [caml_result] or raises the exception.
    This function replaced [caml_raise_if_exception] in 5.3. */
 Caml_inline value caml_get_value_or_raise (struct caml_result_private result)
@@ -139,6 +146,21 @@ Caml_inline value caml_get_value_or_raise (struct caml_result_private result)
   if (result.is_exception)
     caml_raise(result.data);
   else
+    return result.data;
+}
+
+/* Like [caml_get_value_or_raise] but if the result is an exception, it is
+   raised asynchronously (i.e. propagated to the nearest [Sys.with_async_exns]
+   handler).  The [where] argument is used in any error message printed if no
+   such handler exists. */
+Caml_inline value caml_get_value_or_raise_async (struct caml_result_private
+                                                   result,
+                                                 const char *where)
+{
+  if (result.is_exception) {
+    caml_check_async(result, where);
+    caml_raise_async(result.data);
+  } else
     return result.data;
 }
 
