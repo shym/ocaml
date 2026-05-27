@@ -337,6 +337,21 @@ CreateSwitch () {
   ./opam exec --switch ~/local -- ocamlopt -v
 }
 
+OCamlDoc () {
+  make distclean
+  cp $PREFIX/share/ocaml/config.status .
+  chmod +x config.status
+  ./config.status
+  $MAKE build_ocamldoc=separate ocamldoc.pkg
+  $MAKE build_ocamldoc=separate ocamldoc.install
+  cat ocamldoc.install
+  # Force the standalone version
+  echo standalone > ocamldoc.state
+  $MAKE build_ocamldoc=separate ocamldoc.pkg
+  $MAKE build_ocamldoc=separate ocamldoc.install
+  cat ocamldoc.install
+}
+
 case $1 in
 configure) Configure;;
 build) Build;;
@@ -351,6 +366,7 @@ manual) BuildManual;;
 other-checks) Checks;;
 basic-compiler) BasicCompiler;;
 opam) CreateSwitch;;
+ocamldoc) OCamlDoc;;
 *) echo "Unknown CI instruction: $1"
    exit 1;;
 esac

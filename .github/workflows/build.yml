@@ -173,6 +173,7 @@ jobs:
         if: matrix.id == 'normal'
         run: |
           MAKE_ARG=-j OCAMLRUNPARAM=b,v=0 bash -xe tools/ci/actions/runner.sh other-checks
+          MAKE_ARG=-j OCAMLRUNPARAM=b,v=0 bash -xe tools/ci/actions/runner.sh ocamldoc
 
 # macOS build+testsuite run, and other Linux configurations (-O0, etc.)
   config:
