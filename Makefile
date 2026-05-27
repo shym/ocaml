@@ -3223,6 +3223,41 @@ include .separate-ocamldoc-depend
   $(ocamldoc_SECONDARY_FILES)
 	$(V_OCAMLDEP)ocamlc -depend $(OC_OCAMLDEPFLAGS) -I ocamldoc \
 	  $(OCAMLDEPFLAGS) ocamldoc/*.mli ocamldoc/*.ml > $@
+
+ocamldoc.install: ocamldoc.state
+	$(MAKE) --no-print-directory --quiet print-$(file < $<)-install > $@
+
+.PHONY: print-builtin-install
+print-builtin-install:
+	$(info share: [)
+	$(info $(EMPTY)  "ocamldoc.state" { "state" })
+	$(info ])
+	@:
+
+.PHONY: print-ocamldoc.install
+print-standalone-install: print-builtin-install
+	$(info bin: [)
+	$(foreach f,\
+	  ocamldoc/ocamldoc$(EXE) $(wildcard ocamldoc/ocamldoc.opt$(EXE)),\
+	  $(info $(EMPTY)  "$(f)"))
+	$(info ])
+	$(info lib_root: [)
+	$(foreach f,\
+	  ocamldoc/ocamldoc.hva ocamldoc/odoc_info.cma ocamldoc/META \
+	  $(wildcard ocamldoc/*.cmi) \
+	  $(wildcard ocamldoc/*.cmx) \
+	  $(wildcard ocamldoc/odoc_info.$(A)) \
+	  $(wildcard ocamldoc/odoc_info.cmxa), \
+	  $(info $(EMPTY)  "$(f)" { "ocaml/$(f)" }))
+ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
+	$(foreach f,\
+	  $(OCAMLDOC_LIBMLIS) \
+	  $(OCAMLDOC_LIBCMTS), \
+	  $(info $(EMPTY)  "$(f)" { "ocaml/$(f)" }))
+endif
+	$(info ])
+	@:
+
 endif
 
 # Include the cross-compiler recipes only when relevant
