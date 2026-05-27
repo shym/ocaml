@@ -3223,27 +3223,6 @@ include .separate-ocamldoc-depend
   $(ocamldoc_SECONDARY_FILES)
 	$(V_OCAMLDEP)ocamlc -depend $(OC_OCAMLDEPFLAGS) -I ocamldoc \
 	  $(OCAMLDEPFLAGS) ocamldoc/*.mli ocamldoc/*.ml > $@
-
-# FIXME: This is broken with opam as the install end rule hard-codes a couple of
-# things (it calls ./ocaml and it generates a share_root section with the
-# compiler files): is it worth it to try and build it that way instead of the
-# simpler generation of a .install file directly as in the prototype, without
-# any intermediate file, etc. (at the cost of not supporting other installation
-# methods)?
-# The paths are broken too, there should be explicit to be in lib/ocaml/ocamldoc
-.PHONY: separate-ocamldoc-install
-separate-ocamldoc-install:
-	$(call INSTALL_BEGIN)
-	$(call INSTALL_ITEM, ocamldoc/ocamldoc$(EXE), bin)
-	$(call INSTALL_ITEMS_OPT, ocamldoc/ocamldoc.opt$(EXE), bin)
-	$(call INSTALL_ITEMS, ocamldoc/ocamldoc.hva ocamldoc/odoc_info.cma \
-	  ocamldoc/META ocamldoc/*.cmi, lib)
-	$(call INSTALL_ITEMS_OPT, ocamldoc/*.cmx ocamldoc/odoc_info.$(A) \
-	  ocamldoc/odoc_info.cmxa, lib)
-ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
-	$(call INSTALL_ITEMS, $(OCAMLDOC_LIBMLIS) $(OCAMLDOC_LIBCMTS), lib)
-endif
-	$(call INSTALL_END)
 endif
 
 # Include the cross-compiler recipes only when relevant
