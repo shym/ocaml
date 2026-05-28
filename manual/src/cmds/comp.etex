@@ -83,7 +83,7 @@ start-up time.
 
 The output of the linking phase is a file containing compiled bytecode
 that can be executed by the OCaml bytecode interpreter:
-the command named "ocamlrun". If "a.out" is the name of the file
+the command "ocamlrun". If "a.out" is the name of the file
 produced by the linking phase, the command
 \begin{alltt}
         ocamlrun a.out \nth{arg}{1} \nth{arg}{2} \ldots \nth{arg}{n}

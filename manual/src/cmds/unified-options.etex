@@ -51,10 +51,12 @@ given on the command line, instead of linking them into an executable file.
 The name of the library must be set with the "-o" option.
 
 If \comp{"-custom", }"-cclib" or "-ccopt" options are passed on the command
-line, these options are stored in the resulting \qcma library. Then,
+line, these options are stored in the resulting {\qcma} library. Then,
 linking with this library automatically adds back the \comp{"-custom", }
 "-cclib" and "-ccopt" options as if they had been provided on the
 command line, unless the "-noautolink" option is given.
+Additionally, a substring "$CAMLORIGIN" inside a "-ccopt" options will be
+replaced by the full path to the {\qcma} library, excluding the filename.
 }%notop
 
 \item["-absname"]
@@ -102,7 +104,7 @@ Use \var{ccomp} as the C linker \nat{called to build the final executable }
 \comp{when linking in ``custom runtime'' mode (see the "-custom" option)}
 and as the C compiler for compiling ".c" source files. When linking object
 files produced by a C++ compiler (such as "g++" or "clang++"), it is recommended
-to use "-cc c++".
+to set that compiler with "-cc".
 }%notop
 
 \notop{%
@@ -114,11 +116,10 @@ This causes the given C library to be linked with the program.
 
 \notop{%
 \item["-ccopt" \var{option}]
-Pass the given option to the C compiler and linker.
-\comp{When linking in ``custom runtime'' mode, for instance }%
-\nat{For instance, }%
-"-ccopt -L"\var{dir} causes the C linker to search for C libraries in
-directory \var{dir}. \comp{(See the "-custom" option.)}
+Pass the given option to the C compiler and linker%
+\comp{, when linking in ``custom runtime'' mode (see the "-custom" option)}%
+. For instance "-ccopt -L"\var{dir} causes the C linker to search for C
+libraries in directory \var{dir}.
 }%notop
 
 \notop{%
@@ -233,7 +234,7 @@ by the run-time system "ocamlrun" at program start-up time.
 \item["-dllib-suffixed" "-l"\var{libname}]
 As for "-dllib" but the name recorded is mangled with the Runtime ID and host of
 the interpreter before being loaded by the run-time system "ocamlrun" at program
-start-up time. Ths is used for C stub libraries, for example by DLLs produced
+start-up time. This is used for C stub libraries, for example by DLLs produced
 with "ocamlmklib -suffixed".
 }%comp
 
@@ -248,12 +249,12 @@ described in section~\ref{s:ocamlrun-dllpath}.
 
 \notop{%
 \item["-for-pack" \var{module-path}]
-Generate an object file (\qcmo\nat{ and ".o"/".obj" files})
+Generate an object file (\qcmo\comp{ file}\nat{ and ".o"/".obj" files})
 that can later be included
 as a sub-module (with the given access path) of a compilation unit
 constructed with "-pack".  For instance,
 {\machine\ocamlx\ -for-pack\ P\ -c\ A.ml}
-will generate {\machine a.\cmo}\nat{ and "a.o" files} that can
+will generate {\machine a\cmo}\nat{ and "a.o" files} that can
 later be used with {\machine \ocamlx\ -pack\ -o\ P\cmo\ a\cmo}.
 Note: you can still pack a module that was compiled without
 "-for-pack" but in this case exceptions will be printed with the wrong
@@ -295,7 +296,7 @@ private types or types without a manifest (e.g., abstract types).
 Add the given directory to the list of directories searched for
 \nat{compiled interface files (".cmi"), compiled object code files (".cmx"),
 and libraries (".cmxa").}
-\comp{compiled interface files (".cmi"), compiled object code files ".cmo",
+\comp{compiled interface files (".cmi"), compiled object code files (".cmo"),
 libraries (".cma") and C libraries specified with "-cclib -lxxx".}
 \top{source and compiled files.}
 By default, the current directory is searched first, then the standard
@@ -376,6 +377,16 @@ Recognize file names ending with \var{string} as interface files
 (instead of the default ".mli").
 }%\notop
 
+\notop{%
+\item["-keep-docs"]
+Keep documentation strings in generated ".cmi" files.
+}%\notop
+
+\notop{%
+\item["-keep-locs"]
+Keep locations in generated ".cmi" files.
+}%\notop
+
 \item["-keywords" \var{version+list}]
 Set keywords according to the \var{version+list}
 specification.
@@ -393,6 +404,7 @@ source code.
 \item["-labels"]
 Labels are not ignored in types, labels may be used in applications,
 and labelled parameters can be given in any order.  This is the default.
+Revert option "-nolabels".
 
 \comp{%
 \item["-launch-method" \var{method}]
@@ -475,7 +487,7 @@ Do not compile assertion checks.  Note that the special form
 
 \notop{%
 \item["-noautolink"]
-When linking \qcma libraries, ignore \comp{"-custom",} "-cclib" and "-ccopt"
+When linking {\qcma} libraries, ignore \comp{"-custom",} "-cclib" and "-ccopt"
 options potentially contained in the libraries (if these options were
 given when building the libraries).  This can be useful if a library
 contains incorrect specifications of C libraries or C options; in this
@@ -512,11 +524,11 @@ lines in multi-line inputs.  This should be used e.g. when running
 
 \item["-nostdlib"]
 \top{%
-Do not include the standard library directory in the list of
+Do not automatically add the standard library directory to the list of
 directories searched for source and compiled files.
 }%top
 \comp{%
-Do not include the standard library directory in the list of
+Do not automatically add the standard library directory to the list of
 directories searched for
 compiled interface files (".cmi"), compiled object code files
 (".cmo"), libraries (".cma"), and C libraries specified with
@@ -606,7 +618,7 @@ is embedded in the C code so it is no longer accessible to tools such as
 
 \notop{%
 \item["-output-complete-obj"]
-Same as "-output-obj" options except the object file produced includes the
+Same as "-output-obj" except the object file produced includes the
 runtime and autolink libraries.
 }%notop
 
@@ -658,6 +670,10 @@ unit having three sub-modules "A", "B" and "C", corresponding to the
 contents of the object files "a.cmo", "b.cmo" and "c.cmo".  These
 contents can be referenced as "P.A", "P.B" and "P.C" in the remainder
 of the program.
+
+The ".cmo" object files being combined must have been compiled with the
+appropriate "-for-pack" option.  In the example above, "a.cmo", "b.cmo" and
+"c.cmo" must have been compiled with "ocamlc -for-pack P".
 }%comp
 
 \notop{%
@@ -688,11 +704,19 @@ default mode with equivalent types, but different binary signatures,
 and this may slow down type checking; yet it is a good idea to
 use it once before publishing source code.
 
+\item["-no-principal"]
+Do not check principality of type inference.
+This is the default.
+
 \item["-rectypes"]
 Allow arbitrary recursive types during type-checking.  By default,
 only recursive types where the recursion goes through an object type
 are supported. \notop{Note that once you have created an interface using this
 flag, you must use it again for all dependencies.}
+
+\item["-no-rectypes"]
+Do no allow arbitrary recursive types during type-checking.
+This is the default.
 
 \comp{%
 \item["-runtime-search" \var{method}]
@@ -713,12 +737,12 @@ The following methods are supported:
 
 \notop{%
 \item["-runtime-variant" \var{suffix}]
-Add the \var{suffix} string to the name of the runtime library used by
-the program.  Currently, only one such suffix is supported: "d", and
-only if the OCaml compiler was configured with option
-"-with-debug-runtime".  This suffix gives the debug version of the
-runtime, which is useful for debugging pointer problems in low-level
-code such as C stubs.
+Add \var{suffix} to the name of the runtime library used by
+the program. If OCaml was configured with them, the debug ("d" suffix) and
+instrument ("i" suffix) runtimes can be used.
+
+The debug runtime is useful for debugging pointer problems in low-level code
+such as C stubs.
 }%notop
 
 \nat{%
@@ -755,7 +779,7 @@ using "compiler-libs" library (see
 }%nat
 
 \notop{%
-\item["-set-runtime-default" \var{name=value}]
+\item["-set-runtime-default" \var{setting=value}]
 When linking an executable, override the default value for a runtime setting.
 The currently supported settings are:
 \begin{description}
@@ -802,10 +826,19 @@ supported passes are:
 \item["-strict-sequence"]
 Force the left-hand part of each sequence to have type unit.
 
+\item["-no-strict-sequence"]
+Left-hand part of a sequence need not have type unit.
+This is the default.
+
 \item["-strict-formats"]
 Reject invalid formats that were accepted in legacy format
-implementations. You should use this flag to detect and fix such
-invalid formats, as they will be rejected by future OCaml versions.
+implementations. This is the default.
+
+\item["-no-strict-formats"]
+Accept invalid formats accepted by legacy implementations. Invalid formats may
+behave differently from previous OCaml versions, and will become always-rejected
+in future OCaml versions. You should never use this flag and instead fix invalid
+formats.
 
 \notop{%
 \item["-typing-recovery"]
@@ -897,10 +930,12 @@ following:
 \item["+"\var{num}] Enable warning number \var{num}.
 \item["-"\var{num}] Disable warning number \var{num}.
 \item["\@"\var{num}] Enable and mark as fatal warning number \var{num}.
-\item["+"\var{num1}..\var{num2}] Enable warnings in the given range.
-\item["-"\var{num1}..\var{num2}] Disable warnings in the given range.
-\item["\@"\var{num1}..\var{num2}] Enable and mark as fatal warnings in
-the given range.
+\item["+"\var{num1}..\var{num2}] Enable all warnings between \var{num1} and
+\var{num2} (inclusive).
+\item["-"\var{num1}..\var{num2}] Disable all warnings between \var{num1} and
+\var{num2} (inclusive).
+\item["\@"\var{num1}..\var{num2}] Enable and mark as fatal all warnings between
+\var{num1} and \var{num2} (inclusive).
 \item["+"\var{letter}] Enable the set of warnings corresponding to
 \var{letter}. The letter may be uppercase or lowercase.
 \item["-"\var{letter}] Disable the set of warnings corresponding to
