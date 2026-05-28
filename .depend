@@ -2350,7 +2350,6 @@ typing/typing_recovery.cmi : \
 typing/typing_recovery_state.cmo : \
     typing/typing_recovery.cmi \
     typing/typedtree.cmi \
-    otherlibs/str/str.cmi \
     typing/path.cmi \
     parsing/parsetree.cmi \
     parsing/location.cmi \
@@ -2362,7 +2361,6 @@ typing/typing_recovery_state.cmo : \
 typing/typing_recovery_state.cmx : \
     typing/typing_recovery.cmx \
     typing/typedtree.cmx \
-    otherlibs/str/str.cmx \
     typing/path.cmx \
     parsing/parsetree.cmi \
     parsing/location.cmx \
