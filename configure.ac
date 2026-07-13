@@ -479,16 +479,11 @@ AS_IF([test -n "$csc"],
 dnl The separator should be being treated differently for host/target for
 dnl cross-compilers, but the installation layout for cross-compilers is already
 dnl incorrect (for example, ld.conf is processed by _both_ the host and target
-dnl runtimes), so this is left as host-specific for now as being more useful
-dnl (ie things break at compile-time if paths are incorrect on the host)
-AS_CASE([$host],
-  [*-w64-mingw32*|*-pc-windows],
-    [host_dir_sep='\'],
-  [host_dir_sep='/'])
+dnl runtimes), so this is left as target-specific for now.
 AS_CASE([$target],
   [*-w64-mingw32*|*-pc-windows],
-    [target_dir_sep='\'],
-  [target_dir_sep='/'])
+    [default_separator='\'],
+  [default_separator='/'])
 
 # Environment variables that are taken into account
 
@@ -689,7 +684,7 @@ AC_ARG_WITH([additional-stublibsdir],
     [no],
       [ocaml_additional_stublibs_dir=''],
     [yes],
-      [ocaml_additional_stublibs_dir="..${host_dir_sep}stublibs"],
+      [ocaml_additional_stublibs_dir="..${default_separator}stublibs"],
     [ocaml_additional_stublibs_dir="$withval"])],
   [ocaml_additional_stublibs_dir=''])
 
@@ -746,7 +741,7 @@ AC_ARG_WITH([relative-libdir],
     [no],
       [bindir_to_libdir=''],
     [yes],
-      [bindir_to_libdir="..${host_dir_sep}lib${host_dir_sep}ocaml"],
+      [bindir_to_libdir="..${default_separator}lib${default_separator}ocaml"],
     [bindir_to_libdir="$withval"])],
   [bindir_to_libdir=''])
 
@@ -3144,7 +3139,7 @@ AS_IF([test x"$libdir_given" = 'xno'],
       be specified]))])])
 
 AS_CASE([$TARGET_LIBDIR],
-  [.|..|.${target_dir_sep}*|..${target_dir_sep}*],
+  [.|..|.${default_separator}*|..${default_separator}*],
     [target_libdir_is_relative=true])
 
 host_libdir='${TARGET_LIBDIR}'
@@ -3287,13 +3282,13 @@ AC_CONFIG_COMMANDS([runtime/ld.conf],
   test x"$ocaml_additional_stublibs_dir" = 'x' || \
     echo "$ocaml_additional_stublibs_dir" > runtime/ld.conf
   if $supports_shared_libraries; then
-    echo ".${host_dir_sep}stublibs" >> runtime/ld.conf
+    echo ".${default_separator}stublibs" >> runtime/ld.conf
   fi
   echo "." >> runtime/ld.conf],
   [ocaml_additional_stublibs_dir=\
 '$(echo "$ocaml_additional_stublibs_dir" | sed -e "s/'/'\"'\"'/g")'
   ocaml_libdir='$(echo "$ocaml_libdir" | sed -e "s/'/'\"'\"'/g")'
-  host_dir_sep='$host_dir_sep'
+  default_separator='$default_separator'
   supports_shared_libraries='$supports_shared_libraries'])
 
 # Just before config.status is generated, determine the final values for MKEXE,
