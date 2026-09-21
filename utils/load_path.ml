@@ -14,7 +14,28 @@
 
 open Local_store
 
-module Dir = struct
+module Dir : sig
+  type t
+
+  val path : t -> string
+
+  val files : t -> string list
+  (** All the files in that directory. This doesn't include files in
+      sub-directories of this directory. *)
+
+  val create : hidden:bool -> string -> t
+
+  val hidden : t -> bool
+  (** If the modules in this directory should not be bound in the initial
+      scope *)
+
+  val find : t -> string -> string option
+  (** [find dir fn] returns the full path to [fn] in [dir]. *)
+
+  val find_normalized : t -> string -> string option
+  (** As {!find}, but search also for uncapitalized name, i.e. if name is
+      Foo.ml, either /path/Foo.ml or /path/foo.ml may be returned. *)
+end = struct
   type t = {
     path : string;
     files : string list;
@@ -97,8 +118,8 @@ end = struct
   let prepend_add dir =
     List.iter (fun base ->
         Result.iter (fun filename ->
-            let fn = Filename.concat dir.Dir.path base in
-            if dir.Dir.hidden then begin
+            let fn = Filename.concat (Dir.path dir) base in
+            if Dir.hidden dir then begin
               STbl.replace !hidden_files base fn;
               STbl.replace !hidden_files_uncap filename fn
             end else begin
@@ -106,11 +127,11 @@ end = struct
               STbl.replace !visible_files_uncap filename fn
             end)
           (Misc.normalized_unit_filename base)
-      ) dir.Dir.files
+      ) (Dir.files dir)
 
   let add (dir : Dir.t) =
     let update base fn visible_files hidden_files =
-      if dir.hidden then begin
+      if Dir.hidden dir then begin
         if not (STbl.mem !hidden_files base) then
           STbl.replace !hidden_files base fn
       end else if not (STbl.mem !visible_files base) then
@@ -119,13 +140,13 @@ end = struct
     List.iter
       (fun base ->
          Result.iter (fun ubase ->
-             let fn = Filename.concat dir.Dir.path base in
+             let fn = Filename.concat (Dir.path dir) base in
              update base fn visible_files hidden_files;
              update ubase fn visible_files_uncap hidden_files_uncap
            )
            (Misc.normalized_unit_filename base)
       )
-      dir.files
+      (Dir.files dir)
 
   let find fn visible_files hidden_files =
     try (STbl.find !visible_files fn, Visible) with
@@ -196,7 +217,7 @@ let remove_dir dir =
 let add (dir : Dir.t) =
   assert (not Config.merlin || Local_store.is_bound ());
   Path_cache.add dir;
-  if dir.hidden then
+  if Dir.hidden dir then
     hidden_dirs := dir :: !hidden_dirs
   else
     visible_dirs := dir :: !visible_dirs
@@ -210,7 +231,7 @@ let add_dir ~hidden dir = add (Dir.create ~hidden dir)
 let prepend_dir (dir : Dir.t) =
   assert (not Config.merlin || Local_store.is_bound ());
   Path_cache.prepend_add dir;
-  if dir.hidden then
+  if Dir.hidden dir then
     hidden_dirs := !hidden_dirs @ [dir]
   else
     visible_dirs := !visible_dirs @ [dir]
