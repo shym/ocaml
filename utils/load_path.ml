@@ -33,8 +33,9 @@ module Dir : sig
   (** [find dir fn] returns the full path to [fn] in [dir]. *)
 
   val find_normalized : t -> string -> string option
-  (** As {!find}, but search also for uncapitalized name, i.e. if name is
-      Foo.ml, either /path/Foo.ml or /path/foo.ml may be returned. *)
+  (** As {!find}, but search also for normalized name (see
+      {!Misc.normalized_unit_filename}), i.e. if name is Foo.ml, either
+      /path/Foo.ml or /path/foo.ml may be returned. *)
 end = struct
   type t = {
     path : string;
@@ -104,16 +105,16 @@ end = struct
   type registry = string STbl.t
 
   let visible_files : registry ref = s_table STbl.create 42
-  let visible_files_uncap : registry ref = s_table STbl.create 42
+  let visible_files_normalized : registry ref = s_table STbl.create 42
 
   let hidden_files : registry ref = s_table STbl.create 42
-  let hidden_files_uncap : registry ref = s_table STbl.create 42
+  let hidden_files_normalized : registry ref = s_table STbl.create 42
 
   let reset () =
     STbl.clear !hidden_files;
-    STbl.clear !hidden_files_uncap;
+    STbl.clear !hidden_files_normalized;
     STbl.clear !visible_files;
-    STbl.clear !visible_files_uncap
+    STbl.clear !visible_files_normalized
 
   let prepend_add dir =
     List.iter (fun base ->
@@ -121,10 +122,10 @@ end = struct
             let fn = Filename.concat (Dir.path dir) base in
             if Dir.hidden dir then begin
               STbl.replace !hidden_files base fn;
-              STbl.replace !hidden_files_uncap filename fn
+              STbl.replace !hidden_files_normalized filename fn
             end else begin
               STbl.replace !visible_files base fn;
-              STbl.replace !visible_files_uncap filename fn
+              STbl.replace !visible_files_normalized filename fn
             end)
           (Misc.normalized_unit_filename base)
       ) (Dir.files dir)
@@ -142,7 +143,7 @@ end = struct
          Result.iter (fun ubase ->
              let fn = Filename.concat (Dir.path dir) base in
              update base fn visible_files hidden_files;
-             update ubase fn visible_files_uncap hidden_files_uncap
+             update ubase fn visible_files_normalized hidden_files_normalized
            )
            (Misc.normalized_unit_filename base)
       )
@@ -153,7 +154,7 @@ end = struct
     | Not_found -> (STbl.find !hidden_files fn, Hidden)
 
   let find ~normalized fn =
-    if normalized then find fn visible_files_uncap hidden_files_uncap
+    if normalized then find fn visible_files_normalized hidden_files_normalized
     else find fn visible_files hidden_files
 end
 
@@ -274,10 +275,10 @@ let find_normalized_with_visibility fn =
   assert (not Config.merlin || Local_store.is_bound ());
   match Misc.normalized_unit_filename fn with
   | Error _ -> raise Not_found
-  | Ok fn_uncap ->
+  | Ok fn_normalized ->
   try
     if is_basename fn && not !Sys.interactive then
-      Path_cache.find ~normalized:true fn_uncap
+      Path_cache.find ~normalized:true fn_normalized
     else
       try
         (Misc.find_in_path_normalized (get_visible_path_list ()) fn, Visible)
@@ -285,6 +286,6 @@ let find_normalized_with_visibility fn =
       | Not_found ->
         (Misc.find_in_path_normalized (get_hidden_path_list ()) fn, Hidden)
   with Not_found ->
-    (!auto_include_callback Dir.find_normalized fn_uncap, Visible)
+    (!auto_include_callback Dir.find_normalized fn_normalized, Visible)
 
 let find_normalized fn = fst (find_normalized_with_visibility fn)
